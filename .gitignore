@@ -1,0 +1,75 @@
+# Relevantr - Git Ignore File
+
+# API Keys and Environment Variables
+.env
+*.env
+.env.local
+.env.production
+.env.staging
+
+# Vector Database (can be large)
+vector_db/
+chroma_db/
+
+# PDF Files (user's documents)
+pdfs/
+my_pdfs/
+*.pdf
+
+# Logs
+logs/
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# Conda
+.conda/

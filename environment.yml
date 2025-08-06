@@ -1,0 +1,18 @@
+name: scientific-rag
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11  # Updated to 3.11 for better performance
+  - tk  # Tkinter (usually included with Python)
+  - tqdm
+  - python-dotenv
+  - pip
+  # Install via pip (not available or better maintained via pip)
+  - pip:
+    - google-generativeai
+    - langchain
+    - langchain-community
+    - langchain-google-genai
+    - chromadb
+    - pymupdf

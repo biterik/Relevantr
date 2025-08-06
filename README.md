@@ -1,0 +1,160 @@
+# Relevantr 🔬📚
+
+> A Scientific PDF RAG Application for Advanced Literature Analysis
+
+**Relevantr** is a comprehensive Retrieval-Augmented Generation (RAG) application designed for analyzing scientific literature using AI. Built with Python and powered by Google Gemini, it helps researchers find relevant information from their PDF collections with precise source attribution.
+
+![Relevantr Interface](assets/screenshot.png)
+
+## ✨ Features
+
+- 🔍 **Smart PDF Analysis** - Processes and indexes scientific papers automatically  
+- 🤖 **AI-Powered Q&A** - Ask complex questions and get detailed answers with Google Gemini
+- 📖 **Source Attribution** - Precise citations with file names and page numbers
+- 🎯 **Individual Passages** - View specific text chunks that contributed to each answer
+- 💾 **Vector Database** - Efficient storage and retrieval with ChromaDB
+- 📊 **Professional GUI** - User-friendly interface built with Tkinter
+- 📤 **Export Results** - Save your research findings to files
+- ⚙️ **Customizable Settings** - Adjust chunk sizes, overlap, and retrieval parameters
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Python 3.11+ (recommended)
+- Google Gemini API key ([Get one here](https://makersuite.google.com/app/apikey))
+- Conda or pip for package management
+
+### Installation
+
+#### Using Conda (Recommended)
+```bash
+# Clone the repository
+git clone https://github.com/biterik/relevantr.git
+cd relevantr
+
+# Create environment
+conda env create -f environment.yml
+conda activate relevantr
+
+# Run Relevantr
+python relevantr.py
+```
+
+#### Using Pip
+```bash
+# Clone the repository
+git clone https://github.com/biterik/relevantr.git
+cd relevantr
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run Relevantr
+python relevantr.py
+```
+
+### Setup Your API Key
+
+**Option 1: Environment Variable (Recommended)**
+```bash
+export GOOGLE_API_KEY="your_api_key_here"
+```
+
+**Option 2: .env File**
+Create a `.env` file in the project directory:
+```
+GOOGLE_API_KEY=your_api_key_here
+```
+
+**Option 3: GUI Configuration**
+The application will prompt you for your API key on first run.
+
+## 📖 How to Use
+
+1. **Launch Relevantr** - Run `python relevantr.py`
+2. **Configure API Key** - Enter your Google Gemini API key when prompted
+3. **Select PDF Directory** - Choose the folder containing your scientific papers
+4. **Process PDFs** - Click "Process PDFs" to build your searchable database
+5. **Ask Questions** - Type your research questions in natural language
+6. **Explore Results** - View AI-generated answers with precise source citations
+7. **Click Sources** - Double-click any source to see the original text passage
+8. **Export Findings** - Save your research results via File → Export Results
+
+## 🎯 Example Questions
+
+- *"Which papers discuss hydrogen's effect on dislocation mobility?"*
+- *"What are the main mechanisms of hydrogen embrittlement in austenitic steels?"*
+- *"How does temperature affect vacancy diffusion in metals?"*
+- *"Which documents address the influence of grain boundaries on crack propagation?"*
+
+## ⚙️ Advanced Configuration
+
+### Chunk Settings
+Adjust text processing parameters via **Settings → Advanced Settings**:
+- **Chunk Size**: Text segment length (default: 1000 characters)
+- **Chunk Overlap**: Overlap between segments (default: 200 characters)  
+- **Max Retrieved Documents**: Number of sources per query (default: 7)
+
+### Database Management
+- **Reset Database**: File → Reset Database (forces reprocessing)
+- **Database Location**: `vector_db/` directory (auto-created)
+
+## 🏗️ Architecture
+
+Relevantr uses a modular architecture:
+
+- **DocumentProcessor**: PDF loading and text chunking with PyMuPDF and LangChain
+- **QueryProcessor**: Question processing and response generation with Google Gemini
+- **VectorDatabase**: Similarity search and retrieval with ChromaDB
+- **GUI**: Professional interface with Tkinter
+
+## 🛠️ Technical Stack
+
+- **Python 3.11+** - Core language
+- **Google Gemini AI** - Large language model for Q&A
+- **LangChain** - Document processing and text splitting
+- **ChromaDB** - Vector database for similarity search
+- **PyMuPDF** - PDF text extraction
+- **Tkinter** - Cross-platform GUI framework
+
+## 📊 System Requirements
+
+- **RAM**: 8GB+ recommended (for large PDF collections)
+- **Storage**: ~100MB per 1000 PDF pages (for vector database)
+- **Network**: Internet connection required for Google Gemini API
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to:
+- 🐛 Report bugs via GitHub Issues
+- 💡 Suggest new features
+- 📝 Improve documentation
+- 🔧 Submit pull requests
+
+## 📄 License
+
+This project is licensed under the **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License** - see the [LICENSE](LICENSE) file for details.
+
+**Summary:**
+- ✅ **Free for academic/research use**
+- ✅ **Modifications must be shared under same license**
+- ❌ **No commercial use without permission**
+- 🔄 **Derivative works encouraged with attribution**
+
+## 🙏 Acknowledgments
+
+- **LangChain** community for excellent document processing tools
+- **ChromaDB** team for the vector database
+- **Google** for the Gemini AI API
+- **Scientific community** for inspiring this tool
+
+## 📞 Support
+
+- **Issues**: [GitHub Issues](https://github.com/biterik/relevantr/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/biterik/relevantr/discussions)
+
+---
+
+**Created by Erik Bitzek, August 2025**
+
+*Making scientific literature analysis accessible through AI* 🚀
