@@ -4,7 +4,7 @@
 
 **Relevantr** is a comprehensive Retrieval-Augmented Generation (RAG) application designed for analyzing scientific literature using AI. Built with Python and powered by Google Gemini, it helps researchers find relevant information from their PDF collections with precise source attribution.
 
-![Relevantr Interface](assets/screenshot.png)
+![Relevantr Logo](assets/Relevantr_logo.png)
 
 ## ✨ Features
 
