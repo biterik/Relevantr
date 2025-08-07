@@ -53,22 +53,52 @@ def create_simple_spec():
 
 block_cipher = None
 
-# Core hidden imports - minimal set
+# Core hidden imports - includes ChromaDB telemetry fix
 hidden_imports = [
+    # Google AI
     'google.generativeai',
+    'google.ai.generativelanguage',
+    'google.protobuf',
+    'google.auth',
+    'google.api_core',
+    
+    # LangChain
     'langchain',
     'langchain_community',
     'langchain_community.document_loaders',
     'langchain_community.vectorstores', 
     'langchain_google_genai',
+    'langchain_core',
+    'langchain.text_splitter',
+    
+    # ChromaDB with telemetry modules (fixes the missing module error)
     'chromadb',
+    'chromadb.api',
+    'chromadb.config',
+    'chromadb.utils',
+    'chromadb.telemetry',
+    'chromadb.telemetry.product',
+    'chromadb.telemetry.product.posthog',
+    'chromadb.telemetry.events',
+    'chromadb.db',
+    'chromadb.db.impl',
+    'chromadb.segment',
+    'chromadb.segment.impl',
+    'chromadb.segment.impl.vector',
+    'chromadb.segment.impl.vector.local_hnsw',
+    
+    # PDF processing
     'fitz',
     'pymupdf',
+    
+    # GUI
     'tkinter',
     'tkinter.ttk',
     'tkinter.filedialog',
     'tkinter.messagebox',
     'tkinter.scrolledtext',
+    
+    # Utilities
     'tqdm',
     'dotenv',
     'sqlite3',
@@ -76,6 +106,17 @@ hidden_imports = [
     'threading',
     'logging',
     'uuid',
+    'pathlib',
+    'dataclasses',
+    'datetime',
+    'traceback',
+    
+    # Additional ChromaDB dependencies
+    'hnswlib',
+    'posthog',
+    'requests',
+    'urllib3',
+    'certifi',
 ]
 
 a = Analysis(
