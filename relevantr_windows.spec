@@ -16,9 +16,14 @@ print(f"Using site-packages: {site_packages}")
 
 block_cipher = None
 
-# Manually add Google packages path
-google_path = os.path.join(site_packages, 'google')
-google_generativeai_path = os.path.join(site_packages, 'google', 'generativeai')
+# Manually add package paths
+package_paths = [
+    ('google', 'google'),
+    ('langchain', 'langchain'),
+    ('langchain_community', 'langchain_community'),
+    ('langchain_google_genai', 'langchain_google_genai'),
+    ('chromadb', 'chromadb'),
+]
 
 datas = [
     # Environment files
@@ -26,10 +31,14 @@ datas = [
     ('requirements.txt', '.'),
 ]
 
-# Add Google packages as data if they exist
-if os.path.exists(google_path):
-    datas.append((google_path, 'google'))
-    print(f"Added Google packages from: {google_path}")
+# Add packages as data if they exist
+for package_name, dest_name in package_paths:
+    package_path = os.path.join(site_packages, package_name)
+    if os.path.exists(package_path):
+        datas.append((package_path, dest_name))
+        print(f"Added {package_name} from: {package_path}")
+    else:
+        print(f"WARNING: {package_name} not found at: {package_path}")
 
 binaries = []
 
@@ -50,7 +59,7 @@ if sys.platform == "win32":
 
 a = Analysis(
     ['relevantr.py'],
-    pathex=[],
+    pathex=[site_packages],  # Add site-packages to Python path
     binaries=binaries,
     datas=datas,
     hiddenimports=[
@@ -70,33 +79,51 @@ a = Analysis(
         'google.generativeai.types.generation_types',
         'google.generativeai.types.safety_types',
         'google.api_core',
+        'google.api_core.client_options',
+        'google.api_core.gapic_v1',
         'google.auth',
         'google.auth.transport',
         'google.auth.transport.requests',
         'google.protobuf',
         'google.rpc',
         
-        # LangChain
+        # LangChain - COMPREHENSIVE
         'langchain',
         'langchain.text_splitter',
         'langchain.schema',
         'langchain.schema.document',
+        'langchain.document_loaders',
+        'langchain.vectorstores',
+        'langchain.embeddings',
+        'langchain.chat_models',
+        
+        # LangChain Community - CRITICAL
         'langchain_community',
         'langchain_community.document_loaders',
+        'langchain_community.document_loaders.base',
         'langchain_community.document_loaders.pdf',
+        'langchain_community.document_loaders.pymupdf',
         'langchain_community.vectorstores',
+        'langchain_community.vectorstores.base',
         'langchain_community.vectorstores.chroma',
+        'langchain_community.embeddings',
+        'langchain_community.utils',
+        
+        # LangChain Google GenAI
         'langchain_google_genai',
         'langchain_google_genai.embeddings',
         'langchain_google_genai.chat_models',
+        'langchain_google_genai.llms',
         
         # ChromaDB
         'chromadb',
         'chromadb.config',
         'chromadb.utils',
         'chromadb.api',
+        'chromadb.api.models',
         'chromadb.db',
         'chromadb.db.impl',
+        'chromadb.db.impl.sqlite',
         
         # PDF processing
         'fitz',
@@ -124,13 +151,20 @@ a = Analysis(
         'urllib.request',
         'urllib.parse',
         
-        # Additional dependencies that might be needed
+        # Additional dependencies
         'numpy',
         'packaging',
         'importlib_metadata',
         'grpcio',
         'proto-plus',
         'protobuf',
+        'pydantic',
+        'pydantic_core',
+        'yaml',
+        'tenacity',
+        'jsonschema',
+        'click',
+        'colorama',
     ],
     hookspath=[],
     hooksconfig={},
