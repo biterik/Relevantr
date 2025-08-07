@@ -101,12 +101,48 @@ class DocumentProcessor:
     def initialize_embeddings(self, api_key: str):
         """Initialize Google embeddings"""
         try:
+            # Configure genai with API key first
             genai.configure(api_key=api_key)
-            self.embeddings = GoogleGenerativeAIEmbeddings(model=self.config.embedding_model)
+            
+            # Initialize embeddings with explicit API key
+            self.embeddings = GoogleGenerativeAIEmbeddings(
+                model=self.config.embedding_model,
+                google_api_key=api_key  # Explicitly pass the API key
+            )
+            
+            # Test the embeddings with a simple query
+            test_embedding = self.embeddings.embed_query("test")
+            
             self.logger.info("Embeddings initialized successfully")
             return True
         except Exception as e:
             self.logger.error(f"Failed to initialize embeddings: {e}")
+            
+            # Try alternative embedding models for compatibility
+            alternative_models = ["models/embedding-001", "models/text-embedding-004"]
+            
+            for alt_model in alternative_models:
+                if alt_model == self.config.embedding_model:
+                    continue
+                    
+                try:
+                    self.logger.info(f"Trying alternative embedding model: {alt_model}")
+                    self.embeddings = GoogleGenerativeAIEmbeddings(
+                        model=alt_model,
+                        google_api_key=api_key
+                    )
+                    
+                    # Test the alternative model
+                    test_embedding = self.embeddings.embed_query("test")
+                    
+                    self.logger.info(f"Embeddings initialized with alternative model: {alt_model}")
+                    self.config.embedding_model = alt_model
+                    return True
+                    
+                except Exception as alt_error:
+                    self.logger.error(f"Alternative embedding model {alt_model} failed: {alt_error}")
+                    continue
+            
             return False
     
     def load_and_process_pdfs(self, pdf_directory: str, progress_callback=None) -> List[Any]:
@@ -232,8 +268,11 @@ class QueryProcessor:
                 try:
                     self.logger.info(f"Testing {model_name} - {description}")
                     
-                    # Test with ChatGoogleGenerativeAI
-                    test_llm = ChatGoogleGenerativeAI(model=model_name)
+                    # Test with ChatGoogleGenerativeAI and explicit API key
+                    test_llm = ChatGoogleGenerativeAI(
+                        model=model_name,
+                        google_api_key=api_key  # Explicitly pass API key
+                    )
                     test_response = test_llm.invoke("Hello")
                     
                     # If we get here, the model works
