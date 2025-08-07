@@ -47,7 +47,7 @@ class Config:
     pdf_directory: str = os.path.join(os.getcwd(), "pdfs")  # User's current directory
     persist_directory: str = os.path.join(os.getcwd(), "vector_db")  # User's current directory
     embedding_model: str = "models/text-embedding-004"
-    generation_model: str = "gemini-1.5-pro-latest"
+    generation_model: str = "gemini-1.5-pro"  # Updated model name
     chunk_size: int = 1000
     chunk_overlap: int = 200
     max_retrieved_docs: int = 7
@@ -904,28 +904,62 @@ class ScientificRAGApp:
                 messagebox.showerror("Export Error", f"Failed to export results: {e}")
     
     def show_about(self):
-        """Show about in status bar and main window"""
-        # Show in main results window
+        """Show about information in the main results window"""
         about_text = """
-🔬 RELEVANTR v1.0 - by Erik Bitzek (August 2025) 📚
+🔬 RELEVANTR - Scientific PDF RAG Application 📚
+======================================================
 
-Scientific PDF RAG Application for Literature Analysis
-Built with: Python, LangChain, Google Gemini AI, ChromaDB
+Version: 1.0
+Created by: Erik Bitzek, August 2025
 
-Features: PDF Processing • AI Q&A • Source Citations • Export Results
-License: CC BY-NC-SA 4.0 (Non-commercial use)
+ABOUT:
+Relevantr is a comprehensive Retrieval-Augmented Generation (RAG) 
+application designed for analyzing scientific literature using AI.
 
-GitHub: https://github.com/biterik/Relevantr
-        """
+FEATURES:
+• PDF document processing and indexing
+• Vector database storage with ChromaDB
+• AI-powered question answering with Google Gemini
+• Source attribution and citation tracking
+• Advanced chunking and retrieval strategies
+• Export functionality for results
+• Interactive source content viewing
+
+TECHNICAL STACK:
+• Python & Tkinter (GUI)
+• LangChain (Document processing)
+• Google Gemini AI (Generation)
+• ChromaDB (Vector storage)
+• PyMuPDF (PDF processing)
+
+USAGE:
+1. Set your Google Gemini API key
+2. Select your PDF directory
+3. Process PDFs to build database
+4. Ask scientific questions
+5. Explore results with source citations
+
+COPYRIGHT:
+© 2025 Erik Bitzek - Relevantr
+Licensed under CC BY-NC-SA 4.0
+
+For more information, visit: https://github.com/biterik/Relevantr
+
+======================================================
+"""
         
+        # Clear the results window and show about info
         self.results_text.delete(1.0, tk.END)
         self.results_text.insert(tk.END, about_text)
         
-        # Update status bar with version info
-        self.status_var.set("Relevantr v1.0 by Erik Bitzek • CC BY-NC-SA 4.0 • Ask a question to continue")
-        
-        # Clear sources
+        # Clear sources panel
         self.clear_sources()
+        if hasattr(self, 'source_content_text'):
+            self.source_content_text.delete(1.0, tk.END)
+            self.source_content_text.insert(tk.END, "About information displayed in main window.")
+        
+        # Update status
+        self.status_var.set("About information displayed - Ask a question to return to normal mode")
     
     def force_enable_query(self):
         """Debug function to force enable query interface"""

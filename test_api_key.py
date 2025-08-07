@@ -36,13 +36,39 @@ def test_api_key():
         
         # Test with a simple request
         print("Testing API with simple request...")
-        model = genai.GenerativeModel('gemini-pro')
-        response = model.generate_content("Say hello")
         
-        print("✅ API test successful!")
-        print(f"Response: {response.text[:100]}...")
+        # Try the current model names
+        model_names = ['gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-pro']
         
-        return True
+        for model_name in model_names:
+            try:
+                print(f"Trying model: {model_name}")
+                model = genai.GenerativeModel(model_name)
+                response = model.generate_content("Say hello")
+                
+                print("✅ API test successful!")
+                print(f"Working model: {model_name}")
+                print(f"Response: {response.text[:100]}...")
+                
+                return True
+                
+            except Exception as model_error:
+                print(f"Model {model_name} failed: {model_error}")
+                continue
+        
+        print("❌ All model names failed")
+        
+        # Try to list available models
+        try:
+            print("\n🔍 Listing available models:")
+            models = genai.list_models()
+            for model in models:
+                if 'generateContent' in model.supported_generation_methods:
+                    print(f"  - {model.name}")
+        except Exception as list_error:
+            print(f"Could not list models: {list_error}")
+        
+        return False
         
     except Exception as e:
         print(f"❌ API test failed: {e}")
