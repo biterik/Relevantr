@@ -148,6 +148,7 @@ Contributions are welcome! Please feel free to:
 - 📝 Improve documentation
 - 🔧 Submit pull requests
 
+
 ## 📄 License
 
 This project is licensed under the **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License** - see the [LICENSE](LICENSE) file for details.
@@ -164,6 +165,7 @@ This project is licensed under the **Creative Commons Attribution-NonCommercial-
 - **ChromaDB** team for the vector database
 - **Google** for the Gemini AI API
 - **Scientific community** for inspiring this tool
+- **Sriram Anand** for windows installation, testing and debuggging
 
 ## 📞 Support
 
