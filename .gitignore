@@ -73,3 +73,9 @@ Thumbs.db
 
 # Conda
 .conda/
+
+# pyinstaller
+INSTALLATION.md
+build/
+dist/
+
