@@ -47,7 +47,7 @@ class Config:
     pdf_directory: str = os.path.join(os.getcwd(), "pdfs")  # User's current directory
     persist_directory: str = os.path.join(os.getcwd(), "vector_db")  # User's current directory
     embedding_model: str = "models/text-embedding-004"
-    generation_model: str = "gemini-1.5-pro"  # Updated model name
+    generation_model: str = "gemini-1.5-flash"  # Free tier model
     chunk_size: int = 1000
     chunk_overlap: int = 200
     max_retrieved_docs: int = 7
@@ -214,11 +214,54 @@ class QueryProcessor:
         self.llm = None
     
     def initialize_llm(self, api_key: str):
-        """Initialize Gemini LLM"""
+        """Initialize Gemini LLM with automatic model detection"""
         try:
-            self.llm = ChatGoogleGenerativeAI(model=self.config.generation_model)
-            self.logger.info("LLM initialized successfully")
-            return True
+            # Configure the API first
+            genai.configure(api_key=api_key)
+            
+            # Test models in order of preference (best to fallback)
+            model_preference = [
+                ("gemini-1.5-pro", "Premium model (paid tier)"),
+                ("gemini-1.5-flash", "Fast model (free tier)"),
+                ("gemini-pro", "Legacy model (deprecated)")
+            ]
+            
+            self.logger.info("Testing available models...")
+            
+            for model_name, description in model_preference:
+                try:
+                    self.logger.info(f"Testing {model_name} - {description}")
+                    
+                    # Test with ChatGoogleGenerativeAI
+                    test_llm = ChatGoogleGenerativeAI(model=model_name)
+                    test_response = test_llm.invoke("Hello")
+                    
+                    # If we get here, the model works
+                    self.llm = test_llm
+                    self.config.generation_model = model_name
+                    
+                    if "pro" in model_name and "flash" not in model_name:
+                        self.logger.info(f"✅ SUCCESS: Using premium model {model_name} - You have Pro access!")
+                    else:
+                        self.logger.info(f"✅ SUCCESS: Using {model_name} - {description}")
+                    
+                    return True
+                    
+                except Exception as model_error:
+                    error_msg = str(model_error).lower()
+                    
+                    if "quota exceeded" in error_msg:
+                        self.logger.warning(f"❌ {model_name} quota exceeded - trying next model")
+                    elif "permission denied" in error_msg or "not found" in error_msg:
+                        self.logger.info(f"❌ {model_name} not available (likely requires paid tier)")
+                    else:
+                        self.logger.warning(f"❌ {model_name} failed: {model_error}")
+                    
+                    continue
+            
+            self.logger.error("❌ No working models found. Check your API key and internet connection.")
+            return False
+            
         except Exception as e:
             self.logger.error(f"Failed to initialize LLM: {e}")
             return False
@@ -475,6 +518,11 @@ class ScientificRAGApp:
         # API status indicator
         self.api_status_var = tk.StringVar(value="API: Not Configured")
         ttk.Label(self.status_bar, textvariable=self.api_status_var).pack(side=tk.RIGHT, padx=5, pady=2)
+        
+        # Model status indicator
+        self.model_status_var = tk.StringVar(value="")
+        self.model_status_label = ttk.Label(self.status_bar, textvariable=self.model_status_var, font=("Arial", 8))
+        self.model_status_label.pack(side=tk.RIGHT, padx=5, pady=2)
     
     def prompt_api_key(self):
         """Prompt user for Google API key"""
@@ -537,7 +585,15 @@ class ScientificRAGApp:
         
         if embeddings_ok and llm_ok:
             self.api_status_var.set("API: Connected")
-            self.status_var.set("Ready - API configured successfully")
+            
+            # Show which model is being used
+            model_name = self.config.generation_model
+            if "pro" in model_name and "flash" not in model_name:
+                self.model_status_var.set(f"Model: {model_name} (Premium)")
+                self.status_var.set("Ready - Using premium model with Pro access!")
+            else:
+                self.model_status_var.set(f"Model: {model_name}")
+                self.status_var.set("Ready - API configured successfully")
             
             # Try to load existing database
             if self.processor.load_existing_database():
@@ -549,6 +605,7 @@ class ScientificRAGApp:
                 self.status_var.set("Ready - Please process PDFs to create database")
         else:
             self.api_status_var.set("API: Error")
+            self.model_status_var.set("")
             self.status_var.set("Error - Failed to configure API")
             messagebox.showerror("API Error", "Failed to configure Google API. Please check your API key.")
     
@@ -905,12 +962,21 @@ class ScientificRAGApp:
     
     def show_about(self):
         """Show about information in the main results window"""
-        about_text = """
+        # Get current model info
+        current_model = getattr(self.config, 'generation_model', 'Not configured')
+        is_premium = "pro" in current_model.lower() and "flash" not in current_model.lower()
+        
+        about_text = f"""
 🔬 RELEVANTR - Scientific PDF RAG Application 📚
 ======================================================
 
 Version: 1.0
 Created by: Erik Bitzek, August 2025
+
+CURRENT CONFIGURATION:
+AI Model: {current_model}
+Tier: {'Premium (Paid)' if is_premium else 'Free Tier'}
+Status: {'🎯 You have Pro access!' if is_premium else '✅ Using free tier'}
 
 ABOUT:
 Relevantr is a comprehensive Retrieval-Augmented Generation (RAG) 
@@ -920,6 +986,7 @@ FEATURES:
 • PDF document processing and indexing
 • Vector database storage with ChromaDB
 • AI-powered question answering with Google Gemini
+• Automatic model detection (Pro/Flash)
 • Source attribution and citation tracking
 • Advanced chunking and retrieval strategies
 • Export functionality for results
@@ -959,7 +1026,8 @@ For more information, visit: https://github.com/biterik/Relevantr
             self.source_content_text.insert(tk.END, "About information displayed in main window.")
         
         # Update status
-        self.status_var.set("About information displayed - Ask a question to return to normal mode")
+        model_info = f"Premium model" if is_premium else "Free tier model"
+        self.status_var.set(f"About displayed - Using {current_model} ({model_info}) - Ask a question to return to normal mode")
     
     def force_enable_query(self):
         """Debug function to force enable query interface"""
