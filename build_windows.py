@@ -75,10 +75,8 @@ def create_enhanced_spec():
 
 import sys
 import os
-from pathlib import Path
 
-# Get the absolute path to the script directory
-script_dir = Path(__file__).parent.absolute()
+# No need for Path operations in spec file
 
 block_cipher = None
 
@@ -183,7 +181,7 @@ excludes = [
 
 a = Analysis(
     ['relevantr.py'],
-    pathex=[str(script_dir)],
+    pathex=[],
     binaries=[],
     datas=datas,
     hiddenimports=hidden_imports,
