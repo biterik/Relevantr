@@ -104,7 +104,7 @@ def create_installer_info():
 1. Unzip the downloaded file
 2. Drag Relevantr.app to your Applications folder (if app bundle)
    OR run Relevantr executable from the extracted folder
-3. First run: Right-click → Open (to bypass Gatekeeper)
+3. First run: Right-click -> Open (to bypass Gatekeeper)
 4. Set up your Google Gemini API key when prompted
 
 ### Windows:
