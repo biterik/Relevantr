@@ -1,11 +1,13 @@
 # Relevantr - Scientific PDF RAG Application
-# Requirements for pip installation
+# Requirements for pip installation - Compatible Versions
 
-# Core AI and ML libraries
-google-generativeai>=0.3.0
+# Core AI and ML libraries - COMPATIBLE VERSIONS
+google-generativeai==0.8.3
+google-ai-generativelanguage==0.6.15
 langchain>=0.1.0
 langchain-community>=0.0.20
 langchain-google-genai>=0.0.6
+langchain-core>=0.1.0
 chromadb>=0.4.0
 
 # PDF processing
@@ -14,6 +16,12 @@ pymupdf>=1.23.0
 # Utilities
 python-dotenv>=1.0.0
 tqdm>=4.65.0
+
+# Additional dependencies that might be needed
+requests>=2.25.0
+urllib3>=1.26.0
+certifi>=2021.0.0
+packaging>=21.0
 
 # GUI (usually included with Python)
 # tkinter - included with Python standard library
