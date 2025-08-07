@@ -22,7 +22,10 @@ package_paths = [
     ('langchain', 'langchain'),
     ('langchain_community', 'langchain_community'),
     ('langchain_google_genai', 'langchain_google_genai'),
+    ('langchain_core', 'langchain_core'),  # Often needed by langchain_google_genai
     ('chromadb', 'chromadb'),
+    ('tqdm', 'tqdm'),
+    ('dotenv', 'dotenv'),
 ]
 
 datas = [

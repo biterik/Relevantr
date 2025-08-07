@@ -88,14 +88,14 @@ def test_built_app():
         return False
 
 def create_debug_version():
-    """Create a console version for debugging"""
-    print("[DEBUG] Creating debug version with console...")
+    """Create a console version for debugging with error logging"""
+    print("[DEBUG] Creating debug version with console and error logging...")
     
     # Read the spec file and modify for debugging
     with open("relevantr_windows.spec", "r") as f:
         spec_content = f.read()
     
-    # Create debug version
+    # Create debug version with logging
     debug_spec = spec_content.replace("console=False", "console=True")
     debug_spec = debug_spec.replace("debug=False", "debug=True")
     debug_spec = debug_spec.replace("name='Relevantr'", "name='Relevantr_Debug'")
@@ -106,12 +106,68 @@ def create_debug_version():
     try:
         cmd = ['pyinstaller', 'relevantr_debug.spec']
         subprocess.run(cmd, check=True, capture_output=True, text=True)
+        
+        # Create a batch file that captures errors
+        create_debug_batch()
+        
         print("[OK] Debug version created: dist/Relevantr_Debug/Relevantr_Debug.exe")
-        print("[INFO] Use debug version to see error messages in console")
+        print("[INFO] Use debug_run.bat to capture error messages to debug.log")
         return True
     except subprocess.CalledProcessError as e:
         print(f"[ERROR] Debug build failed: {e}")
         return False
+
+def create_debug_batch():
+    """Create a batch file that captures debug output to a log file"""
+    batch_content = """@echo off
+echo Starting Relevantr Debug Version...
+echo Output will be saved to debug.log
+echo.
+
+cd /d "%~dp0"
+
+echo ============================================ > debug.log
+echo Relevantr Debug Log >> debug.log
+echo Started at: %date% %time% >> debug.log
+echo ============================================ >> debug.log
+echo. >> debug.log
+
+echo Running Relevantr_Debug.exe...
+Relevantr_Debug.exe >> debug.log 2>&1
+
+echo. >> debug.log
+echo ============================================ >> debug.log
+echo Finished at: %date% %time% >> debug.log
+echo Exit code: %errorlevel% >> debug.log
+echo ============================================ >> debug.log
+
+if %errorlevel% neq 0 (
+    echo.
+    echo ERROR: Application failed to start (Exit code: %errorlevel%)
+    echo Check debug.log for detailed error information
+    echo.
+    echo Last 10 lines of debug.log:
+    echo ----------------------------------------
+    powershell "Get-Content debug.log | Select-Object -Last 10"
+    echo ----------------------------------------
+) else (
+    echo Application ran successfully
+)
+
+echo.
+echo Full debug log saved to: debug.log
+echo Press any key to exit...
+pause > nul
+"""
+    
+    batch_path = Path("dist") / "Relevantr_Debug" / "debug_run.bat"
+    batch_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(batch_path, "w", encoding='ascii', errors='replace') as f:
+        f.write(batch_content)
+    
+    print(f"[OK] Created debug batch file: {batch_path}")
+
 
 def main():
     """Main build process"""
