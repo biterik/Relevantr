@@ -150,41 +150,115 @@ class DocumentProcessor:
         documents = []
         
         if not os.path.exists(pdf_directory):
-            raise FileNotFoundError(f"PDF directory '{pdf_directory}' not found")
+            error_msg = f"PDF directory '{pdf_directory}' not found"
+            self.logger.error(error_msg)
+            raise FileNotFoundError(error_msg)
         
-        pdf_files = [f for f in os.listdir(pdf_directory) if f.endswith(".pdf")]
+        # Check if directory is readable
+        try:
+            pdf_files = [f for f in os.listdir(pdf_directory) if f.endswith(".pdf")]
+        except PermissionError as e:
+            error_msg = f"Permission denied accessing directory '{pdf_directory}': {e}"
+            self.logger.error(error_msg)
+            raise PermissionError(error_msg)
+        
         if not pdf_files:
-            raise ValueError(f"No PDF files found in '{pdf_directory}'")
+            error_msg = f"No PDF files found in '{pdf_directory}'"
+            self.logger.error(error_msg)
+            raise ValueError(error_msg)
         
         self.logger.info(f"Found {len(pdf_files)} PDF files to process")
         problematic_files = []
+        successful_files = []
         
         for i, pdf_file in enumerate(pdf_files):
             if progress_callback:
                 progress_callback(i, len(pdf_files), f"Processing {pdf_file}")
             
             pdf_path = os.path.join(pdf_directory, pdf_file)
+            
             try:
+                # Check file accessibility
+                if not os.path.exists(pdf_path):
+                    self.logger.error(f"PDF file not found: {pdf_path}")
+                    problematic_files.append(f"{pdf_file} (file not found)")
+                    continue
+                
+                file_size = os.path.getsize(pdf_path)
+                if file_size == 0:
+                    self.logger.error(f"PDF file is empty: {pdf_path}")
+                    problematic_files.append(f"{pdf_file} (empty file)")
+                    continue
+                
+                self.logger.info(f"Processing {pdf_file} ({file_size:,} bytes)")
+                
+                # Test PyMuPDF directly first
+                try:
+                    import fitz
+                    test_doc = fitz.open(pdf_path)
+                    page_count = len(test_doc)
+                    test_doc.close()
+                    
+                    if page_count == 0:
+                        self.logger.error(f"PDF has no pages: {pdf_path}")
+                        problematic_files.append(f"{pdf_file} (no pages)")
+                        continue
+                    
+                    self.logger.info(f"PDF validation passed: {pdf_file} ({page_count} pages)")
+                    
+                except Exception as fitz_error:
+                    self.logger.error(f"PyMuPDF validation failed for {pdf_file}: {fitz_error}")
+                    problematic_files.append(f"{pdf_file} (PyMuPDF error: {fitz_error})")
+                    continue
+                
+                # Process with LangChain
                 loader = PyMuPDFLoader(pdf_path)
                 pages_from_pdf = loader.load_and_split(text_splitter=self.text_splitter)
                 
+                if not pages_from_pdf:
+                    self.logger.error(f"No content extracted from {pdf_file}")
+                    problematic_files.append(f"{pdf_file} (no content extracted)")
+                    continue
+                
+                # Add metadata
                 for page in pages_from_pdf:
                     page.metadata["source"] = pdf_file
                     page.metadata['page_number'] = page.metadata.get('page', 'Unknown')
                 
                 documents.extend(pages_from_pdf)
+                successful_files.append(pdf_file)
                 self.logger.info(f"Successfully processed {pdf_file} - {len(pages_from_pdf)} chunks")
                 
             except Exception as e:
-                self.logger.error(f"Failed to process {pdf_file}: {e}")
-                problematic_files.append(pdf_file)
+                error_details = f"Error processing {pdf_file}: {type(e).__name__}: {e}"
+                self.logger.error(error_details)
+                problematic_files.append(f"{pdf_file} ({type(e).__name__}: {str(e)[:50]})")
+                continue
         
         if progress_callback:
             progress_callback(len(pdf_files), len(pdf_files), "Processing complete")
         
-        self.logger.info(f"Total chunks created: {len(documents)}")
+        # Final summary
+        self.logger.info(f"Processing summary:")
+        self.logger.info(f"  - Total PDF files found: {len(pdf_files)}")
+        self.logger.info(f"  - Successfully processed: {len(successful_files)}")
+        self.logger.info(f"  - Failed to process: {len(problematic_files)}")
+        self.logger.info(f"  - Total chunks created: {len(documents)}")
+        
+        if successful_files:
+            self.logger.info("Successfully processed files:")
+            for file in successful_files:
+                self.logger.info(f"  ✅ {file}")
+        
         if problematic_files:
-            self.logger.warning(f"Could not process {len(problematic_files)} files: {problematic_files}")
+            self.logger.warning("Failed to process files:")
+            for file in problematic_files:
+                self.logger.warning(f"  ❌ {file}")
+        
+        if not documents:
+            error_msg = "No documents were successfully processed. Check the logs for detailed error information."
+            self.logger.error(error_msg)
+            raise ValueError(error_msg)
         
         return documents
     
