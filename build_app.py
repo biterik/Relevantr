@@ -111,7 +111,7 @@ def create_installer_info():
 1. Extract the ZIP file to a folder (e.g., C:\\Relevantr)
 2. Run Relevantr.exe
 3. Set up your Google Gemini API key when prompted
-4. Windows Defender might show a warning - click "More info" → "Run anyway"
+4. Windows Defender might show a warning - click "More info" -> "Run anyway"
 
 ### First Time Setup:
 1. Get a Google Gemini API key: https://makersuite.google.com/app/apikey
