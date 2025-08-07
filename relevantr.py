@@ -20,6 +20,14 @@ from typing import List, Optional, Dict, Any
 from dataclasses import dataclass
 from datetime import datetime
 
+# PyInstaller compatibility
+if hasattr(sys, '_MEIPASS'):
+    # Running as PyInstaller bundle
+    BASE_DIR = sys._MEIPASS
+else:
+    # Running as normal Python script
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, scrolledtext
 import google.generativeai as genai
@@ -36,8 +44,8 @@ warnings.filterwarnings("ignore", category=UserWarning)
 @dataclass
 class Config:
     """Application configuration"""
-    pdf_directory: str = "pdfs"
-    persist_directory: str = "vector_db"
+    pdf_directory: str = os.path.join(os.getcwd(), "pdfs")  # User's current directory
+    persist_directory: str = os.path.join(os.getcwd(), "vector_db")  # User's current directory
     embedding_model: str = "models/text-embedding-004"
     generation_model: str = "gemini-1.5-pro-latest"
     chunk_size: int = 1000
@@ -50,15 +58,17 @@ class Logger:
     """Enhanced logging system"""
     
     def __init__(self):
-        # Create logs directory
-        os.makedirs("logs", exist_ok=True)
+        # Create logs directory in the current working directory (user's folder)
+        self.log_dir = os.path.join(os.getcwd(), "logs")
+        os.makedirs(self.log_dir, exist_ok=True)
         
         # Configure logging
+        log_file = os.path.join(self.log_dir, f'relevantr_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
         logging.basicConfig(
             level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(message)s',
             handlers=[
-                logging.FileHandler(f'logs/relevantr_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'),
+                logging.FileHandler(log_file),
                 logging.StreamHandler()
             ]
         )
@@ -388,7 +398,7 @@ class ScientificRAGApp:
         query_frame = ttk.LabelFrame(left_frame, text="Ask a Question")
         query_frame.pack(fill=tk.X, pady=(0, 5))
         
-        self.query_text = scrolledtext.ScrolledText(query_frame, height=3, wrap=tk.WORD)
+        self.query_text = scrolledtext.ScrolledText(query_frame, height=3, wrap=tk.WORD, font=("Arial", 12))
         self.query_text.pack(fill=tk.X, padx=5, pady=5)
         
         query_btn_frame = ttk.Frame(query_frame)
@@ -402,7 +412,7 @@ class ScientificRAGApp:
         results_frame = ttk.LabelFrame(left_frame, text="Answer")
         results_frame.pack(fill=tk.BOTH, expand=True)
         
-        self.results_text = scrolledtext.ScrolledText(results_frame, wrap=tk.WORD, font=("Arial", 14))
+        self.results_text = scrolledtext.ScrolledText(results_frame, wrap=tk.WORD, font=("Arial", 12))
         self.results_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
         # Right panel - Sources and Logs
@@ -441,7 +451,7 @@ class ScientificRAGApp:
         content_frame = ttk.LabelFrame(right_frame, text="Source Content (Double-click source to view)")
         content_frame.pack(fill=tk.BOTH, expand=True, pady=(5, 0))
         
-        self.source_content_text = scrolledtext.ScrolledText(content_frame, wrap=tk.WORD, font=("Arial", 14), height=10)
+        self.source_content_text = scrolledtext.ScrolledText(content_frame, wrap=tk.WORD, font=("Arial", 11), height=10)
         self.source_content_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
         # Progress and logs
@@ -468,8 +478,13 @@ class ScientificRAGApp:
     
     def prompt_api_key(self):
         """Prompt user for Google API key"""
-        # Try to load from .env first
-        load_dotenv()
+        # Try to load from .env first (check current working directory)
+        env_path = os.path.join(os.getcwd(), '.env')
+        if os.path.exists(env_path):
+            load_dotenv(env_path)
+        else:
+            load_dotenv()  # Try default locations
+            
         api_key = os.getenv("GOOGLE_API_KEY")
         
         if not api_key:
@@ -889,44 +904,28 @@ class ScientificRAGApp:
                 messagebox.showerror("Export Error", f"Failed to export results: {e}")
     
     def show_about(self):
-        """Show about dialog"""
+        """Show about in status bar and main window"""
+        # Show in main results window
         about_text = """
-Relevantr - Scientific PDF RAG Application
-Version 1.0
-Created by: Erik Bitzek, August 2025
+🔬 RELEVANTR v1.0 - by Erik Bitzek (August 2025) 📚
 
-A comprehensive Retrieval-Augmented Generation (RAG) application 
-for analyzing scientific literature using AI.
+Scientific PDF RAG Application for Literature Analysis
+Built with: Python, LangChain, Google Gemini AI, ChromaDB
 
-Features:
-• PDF document processing and indexing
-• Vector database storage with ChromaDB
-• AI-powered question answering with Google Gemini
-• Source attribution and citation tracking
-• Advanced chunking and retrieval strategies
-• Export functionality for results
+Features: PDF Processing • AI Q&A • Source Citations • Export Results
+License: CC BY-NC-SA 4.0 (Non-commercial use)
 
-Built with:
-• Python & Tkinter (GUI)
-• LangChain (Document processing)
-• Google Gemini AI (Generation)
-• ChromaDB (Vector storage)
-
-© 2025 Erik Bitzek - Relevantr
+GitHub: https://github.com/biterik/Relevantr
         """
         
-        dialog = tk.Toplevel(self.root)
-        dialog.title("About Relevantr")
-        dialog.geometry("500x400")
-        dialog.transient(self.root)
-        dialog.grab_set()
+        self.results_text.delete(1.0, tk.END)
+        self.results_text.insert(tk.END, about_text)
         
-        text_widget = scrolledtext.ScrolledText(dialog, wrap=tk.WORD)
-        text_widget.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        text_widget.insert(tk.END, about_text)
-        text_widget.config(state=tk.DISABLED)
+        # Update status bar with version info
+        self.status_var.set("Relevantr v1.0 by Erik Bitzek • CC BY-NC-SA 4.0 • Ask a question to continue")
         
-        ttk.Button(dialog, text="Close", command=dialog.destroy).pack(pady=10)
+        # Clear sources
+        self.clear_sources()
     
     def force_enable_query(self):
         """Debug function to force enable query interface"""
