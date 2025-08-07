@@ -1,0 +1,188 @@
+# -*- mode: python ; coding: utf-8 -*-
+# Comprehensive PyInstaller spec file for Relevantr Windows build
+
+import sys
+import os
+from pathlib import Path
+
+# Get the conda environment site-packages path
+conda_prefix = os.environ.get('CONDA_PREFIX')
+if conda_prefix:
+    site_packages = os.path.join(conda_prefix, 'Lib', 'site-packages')
+else:
+    site_packages = os.path.join(sys.prefix, 'Lib', 'site-packages')
+
+print(f"Using site-packages: {site_packages}")
+
+block_cipher = None
+
+# Manually add Google packages path
+google_path = os.path.join(site_packages, 'google')
+google_generativeai_path = os.path.join(site_packages, 'google', 'generativeai')
+
+datas = [
+    # Environment files
+    ('environment.yml', '.'),
+    ('requirements.txt', '.'),
+]
+
+# Add Google packages as data if they exist
+if os.path.exists(google_path):
+    datas.append((google_path, 'google'))
+    print(f"Added Google packages from: {google_path}")
+
+binaries = []
+
+# Add Python DLL for Windows
+if sys.platform == "win32":
+    python_dll_name = f"python{sys.version_info.major}{sys.version_info.minor}.dll"
+    possible_dll_paths = [
+        os.path.join(os.path.dirname(sys.executable), python_dll_name),
+        os.path.join(conda_prefix or '', python_dll_name),
+        os.path.join(conda_prefix or '', 'Library', 'bin', python_dll_name),
+    ]
+    
+    for dll_path in possible_dll_paths:
+        if os.path.exists(dll_path):
+            binaries.append((dll_path, '.'))
+            print(f"Added Python DLL: {dll_path}")
+            break
+
+a = Analysis(
+    ['relevantr.py'],
+    pathex=[],
+    binaries=binaries,
+    datas=datas,
+    hiddenimports=[
+        # Core Python modules
+        'tkinter',
+        'tkinter.ttk',
+        'tkinter.filedialog',
+        'tkinter.messagebox',
+        'tkinter.scrolledtext',
+        '_tkinter',
+        
+        # Google AI - comprehensive list
+        'google',
+        'google.generativeai',
+        'google.generativeai.client',
+        'google.generativeai.types',
+        'google.generativeai.types.generation_types',
+        'google.generativeai.types.safety_types',
+        'google.api_core',
+        'google.auth',
+        'google.auth.transport',
+        'google.auth.transport.requests',
+        'google.protobuf',
+        'google.rpc',
+        
+        # LangChain
+        'langchain',
+        'langchain.text_splitter',
+        'langchain.schema',
+        'langchain.schema.document',
+        'langchain_community',
+        'langchain_community.document_loaders',
+        'langchain_community.document_loaders.pdf',
+        'langchain_community.vectorstores',
+        'langchain_community.vectorstores.chroma',
+        'langchain_google_genai',
+        'langchain_google_genai.embeddings',
+        'langchain_google_genai.chat_models',
+        
+        # ChromaDB
+        'chromadb',
+        'chromadb.config',
+        'chromadb.utils',
+        'chromadb.api',
+        'chromadb.db',
+        'chromadb.db.impl',
+        
+        # PDF processing
+        'fitz',
+        'pymupdf',
+        
+        # Utilities
+        'tqdm',
+        'dotenv',
+        'warnings',
+        'logging',
+        'threading',
+        'json',
+        'datetime',
+        'dataclasses',
+        'typing',
+        'pathlib',
+        'sqlite3',
+        'ssl',
+        'certifi',
+        'urllib3',
+        'requests',
+        'http',
+        'http.client',
+        'urllib',
+        'urllib.request',
+        'urllib.parse',
+        
+        # Additional dependencies that might be needed
+        'numpy',
+        'packaging',
+        'importlib_metadata',
+        'grpcio',
+        'proto-plus',
+        'protobuf',
+    ],
+    hookspath=[],
+    hooksconfig={},
+    runtime_hooks=[],
+    excludes=[
+        # Large packages we don't need
+        'matplotlib',
+        'scipy',
+        'pandas',
+        'jupyter',
+        'IPython',
+        'notebook',
+        'pytest',
+        'PIL',
+        'cv2',
+        'sklearn',
+        'tensorflow',
+        'torch',
+    ],
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=block_cipher,
+    noarchive=False,
+)
+
+pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+
+exe = EXE(
+    pyz,
+    a.scripts,
+    [],
+    exclude_binaries=True,
+    name='Relevantr',
+    debug=False,  # Set to True for debugging
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=True,
+    console=False,  # Set to True to see error messages during development
+    disable_windowed_traceback=False,
+    argv_emulation=False,
+    target_arch=None,
+    codesign_identity=None,
+    entitlements_file=None,
+)
+
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    name='Relevantr',
+)
