@@ -174,6 +174,25 @@ This project is licensed under the **Creative Commons Attribution-NonCommercial-
 
 ---
 
+## Recent Updates (v1.1)
+
+### Fixed Network Connectivity Issues
+- Resolved hanging issues with standalone executables
+- Added comprehensive network debugging tools
+- Forced REST transport to avoid gRPC DNS resolution problems
+
+### New Features
+- Enhanced debug menu with network testing tools
+- Detailed system information display
+- Improved build script with network dependency fixes
+- Comprehensive error logging and diagnostics
+
+### Building Standalone Executable
+Use the included build script for better compatibility:
+```bash
+./build_script.sh
+
+
 **Created by Erik Bitzek, August 2025**
 
 *Making scientific literature analysis accessible through AI* 🚀
