@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """
-Relevantr - A Scientific PDF RAG Application (Fixed Version)
-============================================================
+Relevantr - A Scientific PDF RAG Application
+============================================
 A comprehensive RAG (Retrieval-Augmented Generation) application for scientific literature analysis.
 Extracts information from PDF documents and provides AI-powered answers using Google's Gemini.
 
 Created by: Erik Bitzek
 Date: August 2025
-Fixed: Network connectivity and debugging improvements
 """
 
 import os
@@ -16,11 +15,6 @@ import json
 import logging
 import threading
 import traceback
-import socket
-import ssl
-import urllib3
-import requests
-import time
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 from dataclasses import dataclass
@@ -30,125 +24,30 @@ from datetime import datetime
 if hasattr(sys, '_MEIPASS'):
     # Running as PyInstaller bundle
     BASE_DIR = sys._MEIPASS
-    print(f"[DEBUG] Running as PyInstaller bundle, BASE_DIR: {BASE_DIR}")
 else:
     # Running as normal Python script
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    print(f"[DEBUG] Running as normal Python script, BASE_DIR: {BASE_DIR}")
-
-# Network debugging setup
-print(f"[DEBUG] Python version: {sys.version}")
-print(f"[DEBUG] Platform: {sys.platform}")
-print(f"[DEBUG] Current working directory: {os.getcwd()}")
 
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, scrolledtext
-
-# Test basic network connectivity before importing Google libraries
-def test_network_connectivity():
-    """Test network connectivity with detailed debugging"""
-    import socket
-    import ssl
-    import requests
-    
-    print("\n" + "="*60)
-    print("[NETWORK DEBUG] Testing network connectivity...")
-    
-    # Test basic internet connectivity
-    test_hosts = [
-        ("8.8.8.8", 53, "Google DNS"),
-        ("1.1.1.1", 53, "Cloudflare DNS"),
-        ("generativelanguage.googleapis.com", 443, "Google AI API"),
-        ("google.com", 80, "Google HTTP"),
-        ("google.com", 443, "Google HTTPS")
-    ]
-    
-    for host, port, description in test_hosts:
-        try:
-            print(f"[NETWORK] Testing {description} ({host}:{port})...")
-            socket.create_connection((host, port), timeout=10)
-            print(f"[NETWORK] ✅ {description} - Connection successful")
-        except socket.gaierror as e:
-            print(f"[NETWORK] ❌ {description} - DNS resolution failed: {e}")
-        except socket.timeout:
-            print(f"[NETWORK] ❌ {description} - Connection timeout")
-        except Exception as e:
-            print(f"[NETWORK] ❌ {description} - Connection failed: {e}")
-    
-    # Test DNS resolution specifically
-    print(f"[NETWORK] Testing DNS resolution...")
-    try:
-        result = socket.getaddrinfo("generativelanguage.googleapis.com", 443)
-        print(f"[NETWORK] ✅ DNS resolution successful: {result[0][4][0]}")
-    except Exception as e:
-        print(f"[NETWORK] ❌ DNS resolution failed: {e}")
-    
-    # Test SSL/TLS
-    print(f"[NETWORK] Testing SSL/TLS...")
-    try:
-        context = ssl.create_default_context()
-        with socket.create_connection(("google.com", 443), timeout=10) as sock:
-            with context.wrap_socket(sock, server_hostname="google.com") as ssock:
-                print(f"[NETWORK] ✅ SSL/TLS connection successful")
-    except Exception as e:
-        print(f"[NETWORK] ❌ SSL/TLS connection failed: {e}")
-    
-    # Test HTTP requests
-    print(f"[NETWORK] Testing HTTP requests...")
-    try:
-        response = requests.get("https://www.google.com", timeout=10)
-        print(f"[NETWORK] ✅ HTTP request successful: {response.status_code}")
-    except Exception as e:
-        print(f"[NETWORK] ❌ HTTP request failed: {e}")
-    
-    print("="*60 + "\n")
-
-# Run network test first
-test_network_connectivity()
-
-# Force specific transport method for Google libraries
-os.environ['GRPC_VERBOSITY'] = 'DEBUG'
-os.environ['GRPC_TRACE'] = 'all'
-
-# Import Google libraries with error handling
-try:
-    print("[DEBUG] Importing google.generativeai...")
-    import google.generativeai as genai
-    print("[DEBUG] ✅ google.generativeai imported successfully")
-except ImportError as e:
-    print(f"[DEBUG] ❌ Failed to import google.generativeai: {e}")
-    sys.exit(1)
-
-try:
-    print("[DEBUG] Importing LangChain libraries...")
-    from langchain.text_splitter import RecursiveCharacterTextSplitter
-    from langchain_community.document_loaders import PyMuPDFLoader
-    from langchain_community.vectorstores import Chroma
-    from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
-    print("[DEBUG] ✅ LangChain libraries imported successfully")
-except ImportError as e:
-    print(f"[DEBUG] ❌ Failed to import LangChain libraries: {e}")
-    sys.exit(1)
-
-try:
-    print("[DEBUG] Importing other libraries...")
-    from tqdm import tqdm
-    import warnings
-    from dotenv import load_dotenv
-    print("[DEBUG] ✅ Other libraries imported successfully")
-except ImportError as e:
-    print(f"[DEBUG] ❌ Failed to import other libraries: {e}")
-    sys.exit(1)
+import google.generativeai as genai
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import PyMuPDFLoader
+from langchain_community.vectorstores import Chroma
+from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
+from tqdm import tqdm
+import warnings
+from dotenv import load_dotenv
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
 @dataclass
 class Config:
     """Application configuration"""
-    pdf_directory: str = os.path.join(os.getcwd(), "pdfs")
-    persist_directory: str = os.path.join(os.getcwd(), "vector_db")
+    pdf_directory: str = os.path.join(os.getcwd(), "pdfs")  # User's current directory
+    persist_directory: str = os.path.join(os.getcwd(), "vector_db")  # User's current directory
     embedding_model: str = "models/text-embedding-004"
-    generation_model: str = "gemini-1.5-flash"
+    generation_model: str = "gemini-1.5-flash"  # Free tier model
     chunk_size: int = 1000
     chunk_overlap: int = 200
     max_retrieved_docs: int = 7
@@ -156,46 +55,33 @@ class Config:
     window_height: int = 800
 
 class Logger:
-    """Enhanced logging system with more debug information"""
+    """Enhanced logging system"""
     
     def __init__(self):
-        # Create logs directory in the current working directory
+        # Create logs directory in the current working directory (user's folder)
         self.log_dir = os.path.join(os.getcwd(), "logs")
         os.makedirs(self.log_dir, exist_ok=True)
         
-        # Configure logging with more detailed format
+        # Configure logging
         log_file = os.path.join(self.log_dir, f'relevantr_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
         logging.basicConfig(
-            level=logging.DEBUG,  # Changed to DEBUG level
-            format='%(asctime)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(funcName)s() - %(message)s',
+            level=logging.INFO,
+            format='%(asctime)s - %(levelname)s - %(message)s',
             handlers=[
-                logging.FileHandler(log_file, encoding='utf-8'),
+                logging.FileHandler(log_file),
                 logging.StreamHandler()
             ]
         )
         self.logger = logging.getLogger(__name__)
-        
-        # Log system information
-        self.logger.info(f"Relevantr starting on {sys.platform}")
-        self.logger.info(f"Python version: {sys.version}")
-        self.logger.info(f"Working directory: {os.getcwd()}")
-        self.logger.info(f"Log file: {log_file}")
-    
-    def debug(self, message: str):
-        self.logger.debug(message)
-        print(f"[DEBUG] {message}")  # Also print to console
     
     def info(self, message: str):
         self.logger.info(message)
-        print(f"[INFO] {message}")
     
     def error(self, message: str):
         self.logger.error(message)
-        print(f"[ERROR] {message}")
     
     def warning(self, message: str):
         self.logger.warning(message)
-        print(f"[WARNING] {message}")
 
 class DocumentProcessor:
     """Handles PDF processing and vector database operations"""
@@ -211,106 +97,56 @@ class DocumentProcessor:
         )
         self.embeddings = None
         self.vector_db = None
-        self.logger.debug("DocumentProcessor initialized")
-    
-    def test_google_api_connection(self, api_key: str) -> bool:
-        """Test Google API connection with detailed debugging"""
-        self.logger.info("Testing Google API connection...")
-        
-        try:
-            # Configure genai with detailed logging
-            self.logger.debug(f"Configuring Google API with key: {api_key[:10]}...")
-            
-            # Try different transport methods
-            transport_methods = ['rest', 'grpc']
-            
-            for transport in transport_methods:
-                try:
-                    self.logger.info(f"Trying transport method: {transport}")
-                    
-                    # Configure with specific transport
-                    if transport == 'rest':
-                        genai.configure(api_key=api_key, transport='rest')
-                    else:
-                        genai.configure(api_key=api_key)
-                    
-                    # Test with a simple model list call
-                    self.logger.debug("Testing model list API call...")
-                    models = list(genai.list_models())
-                    self.logger.info(f"✅ API connection successful with {transport} transport")
-                    self.logger.info(f"Available models: {len(models)}")
-                    
-                    for model in models[:5]:  # Log first 5 models
-                        self.logger.debug(f"  - {model.name}")
-                    
-                    return True
-                    
-                except Exception as transport_error:
-                    self.logger.warning(f"❌ Transport {transport} failed: {transport_error}")
-                    continue
-            
-            return False
-            
-        except Exception as e:
-            self.logger.error(f"❌ Google API connection test failed: {e}")
-            self.logger.debug(f"Full error traceback: {traceback.format_exc()}")
-            return False
     
     def initialize_embeddings(self, api_key: str):
-        """Initialize Google embeddings with enhanced debugging"""
+        """Initialize Google embeddings"""
         try:
-            self.logger.info("Initializing embeddings...")
+            # Configure genai with API key first
+            genai.configure(api_key=api_key)
             
-            # First test API connection
-            if not self.test_google_api_connection(api_key):
-                self.logger.error("Failed to connect to Google API - cannot initialize embeddings")
-                return False
+            # Initialize embeddings with explicit API key
+            self.embeddings = GoogleGenerativeAIEmbeddings(
+                model=self.config.embedding_model,
+                google_api_key=api_key  # Explicitly pass the API key
+            )
             
-            # Try different embedding models
-            embedding_models = [
-                "models/text-embedding-004",
-                "models/embedding-001",
-                "models/text-embedding-003"
-            ]
+            # Test the embeddings with a simple query
+            test_embedding = self.embeddings.embed_query("test")
             
-            for model_name in embedding_models:
-                try:
-                    self.logger.info(f"Trying embedding model: {model_name}")
+            self.logger.info("Embeddings initialized successfully")
+            return True
+        except Exception as e:
+            self.logger.error(f"Failed to initialize embeddings: {e}")
+            
+            # Try alternative embedding models for compatibility
+            alternative_models = ["models/embedding-001", "models/text-embedding-004"]
+            
+            for alt_model in alternative_models:
+                if alt_model == self.config.embedding_model:
+                    continue
                     
-                    # Create embeddings with explicit configuration - FORCE REST TRANSPORT
+                try:
+                    self.logger.info(f"Trying alternative embedding model: {alt_model}")
                     self.embeddings = GoogleGenerativeAIEmbeddings(
-                        model=model_name,
-                        google_api_key=api_key,
-                        task_type="retrieval_document",  # Specify task type
-                        transport='rest'  # Force REST transport to avoid gRPC DNS issues
+                        model=alt_model,
+                        google_api_key=api_key
                     )
                     
-                    # Test with a simple embedding
-                    self.logger.debug("Testing embedding with simple text...")
-                    test_text = "This is a test sentence for embedding."
-                    test_embedding = self.embeddings.embed_query(test_text)
+                    # Test the alternative model
+                    test_embedding = self.embeddings.embed_query("test")
                     
-                    self.logger.info(f"✅ Embeddings initialized successfully with {model_name}")
-                    self.logger.debug(f"Test embedding dimension: {len(test_embedding)}")
-                    self.config.embedding_model = model_name
+                    self.logger.info(f"Embeddings initialized with alternative model: {alt_model}")
+                    self.config.embedding_model = alt_model
                     return True
                     
-                except Exception as model_error:
-                    self.logger.warning(f"❌ Embedding model {model_name} failed: {model_error}")
-                    self.logger.debug(f"Model error traceback: {traceback.format_exc()}")
+                except Exception as alt_error:
+                    self.logger.error(f"Alternative embedding model {alt_model} failed: {alt_error}")
                     continue
             
-            self.logger.error("❌ All embedding models failed")
-            return False
-            
-        except Exception as e:
-            self.logger.error(f"❌ Failed to initialize embeddings: {e}")
-            self.logger.debug(f"Full error traceback: {traceback.format_exc()}")
             return False
     
     def load_and_process_pdfs(self, pdf_directory: str, progress_callback=None) -> List[Any]:
-        """Load and process PDF files with enhanced debugging"""
-        self.logger.info(f"Starting PDF processing from directory: {pdf_directory}")
+        """Load and process PDF files with progress tracking"""
         documents = []
         
         if not os.path.exists(pdf_directory):
@@ -318,10 +154,9 @@ class DocumentProcessor:
             self.logger.error(error_msg)
             raise FileNotFoundError(error_msg)
         
-        # Check directory permissions
+        # Check if directory is readable
         try:
             pdf_files = [f for f in os.listdir(pdf_directory) if f.endswith(".pdf")]
-            self.logger.debug(f"Found {len(pdf_files)} PDF files: {pdf_files}")
         except PermissionError as e:
             error_msg = f"Permission denied accessing directory '{pdf_directory}': {e}"
             self.logger.error(error_msg)
@@ -332,20 +167,18 @@ class DocumentProcessor:
             self.logger.error(error_msg)
             raise ValueError(error_msg)
         
-        self.logger.info(f"Processing {len(pdf_files)} PDF files...")
+        self.logger.info(f"Found {len(pdf_files)} PDF files to process")
         problematic_files = []
         successful_files = []
         
         for i, pdf_file in enumerate(pdf_files):
-            self.logger.debug(f"Processing file {i+1}/{len(pdf_files)}: {pdf_file}")
-            
             if progress_callback:
                 progress_callback(i, len(pdf_files), f"Processing {pdf_file}")
             
             pdf_path = os.path.join(pdf_directory, pdf_file)
             
             try:
-                # Detailed file checks
+                # Check file accessibility
                 if not os.path.exists(pdf_path):
                     self.logger.error(f"PDF file not found: {pdf_path}")
                     problematic_files.append(f"{pdf_file} (file not found)")
@@ -357,27 +190,21 @@ class DocumentProcessor:
                     problematic_files.append(f"{pdf_file} (empty file)")
                     continue
                 
-                self.logger.debug(f"File size: {file_size:,} bytes")
+                self.logger.info(f"Processing {pdf_file} ({file_size:,} bytes)")
                 
-                # Test PyMuPDF directly with debugging
+                # Test PyMuPDF directly first
                 try:
                     import fitz
-                    self.logger.debug(f"Opening PDF with PyMuPDF: {pdf_path}")
                     test_doc = fitz.open(pdf_path)
                     page_count = len(test_doc)
+                    test_doc.close()
                     
                     if page_count == 0:
-                        test_doc.close()
                         self.logger.error(f"PDF has no pages: {pdf_path}")
                         problematic_files.append(f"{pdf_file} (no pages)")
                         continue
                     
-                    # Test first page extraction
-                    first_page = test_doc[0]
-                    first_page_text = first_page.get_text()
-                    test_doc.close()
-                    
-                    self.logger.debug(f"PDF validation passed: {page_count} pages, first page text length: {len(first_page_text)}")
+                    self.logger.info(f"PDF validation passed: {pdf_file} ({page_count} pages)")
                     
                 except Exception as fitz_error:
                     self.logger.error(f"PyMuPDF validation failed for {pdf_file}: {fitz_error}")
@@ -385,7 +212,6 @@ class DocumentProcessor:
                     continue
                 
                 # Process with LangChain
-                self.logger.debug(f"Processing with LangChain loader...")
                 loader = PyMuPDFLoader(pdf_path)
                 pages_from_pdf = loader.load_and_split(text_splitter=self.text_splitter)
                 
@@ -394,42 +220,38 @@ class DocumentProcessor:
                     problematic_files.append(f"{pdf_file} (no content extracted)")
                     continue
                 
-                # Add metadata with debugging
-                for j, page in enumerate(pages_from_pdf):
+                # Add metadata
+                for page in pages_from_pdf:
                     page.metadata["source"] = pdf_file
                     page.metadata['page_number'] = page.metadata.get('page', 'Unknown')
-                    self.logger.debug(f"Chunk {j}: {len(page.page_content)} chars, page {page.metadata['page_number']}")
                 
                 documents.extend(pages_from_pdf)
                 successful_files.append(pdf_file)
-                self.logger.info(f"✅ Successfully processed {pdf_file} - {len(pages_from_pdf)} chunks")
+                self.logger.info(f"Successfully processed {pdf_file} - {len(pages_from_pdf)} chunks")
                 
             except Exception as e:
                 error_details = f"Error processing {pdf_file}: {type(e).__name__}: {e}"
                 self.logger.error(error_details)
-                self.logger.debug(f"Full error traceback: {traceback.format_exc()}")
                 problematic_files.append(f"{pdf_file} ({type(e).__name__}: {str(e)[:50]})")
                 continue
         
         if progress_callback:
             progress_callback(len(pdf_files), len(pdf_files), "Processing complete")
         
-        # Detailed summary
-        self.logger.info("="*50)
-        self.logger.info("PDF PROCESSING SUMMARY:")
-        self.logger.info(f"  Total PDF files found: {len(pdf_files)}")
-        self.logger.info(f"  Successfully processed: {len(successful_files)}")
-        self.logger.info(f"  Failed to process: {len(problematic_files)}")
-        self.logger.info(f"  Total chunks created: {len(documents)}")
-        self.logger.info("="*50)
+        # Final summary
+        self.logger.info(f"Processing summary:")
+        self.logger.info(f"  - Total PDF files found: {len(pdf_files)}")
+        self.logger.info(f"  - Successfully processed: {len(successful_files)}")
+        self.logger.info(f"  - Failed to process: {len(problematic_files)}")
+        self.logger.info(f"  - Total chunks created: {len(documents)}")
         
         if successful_files:
-            self.logger.info("SUCCESSFUL FILES:")
+            self.logger.info("Successfully processed files:")
             for file in successful_files:
                 self.logger.info(f"  ✅ {file}")
         
         if problematic_files:
-            self.logger.warning("FAILED FILES:")
+            self.logger.warning("Failed to process files:")
             for file in problematic_files:
                 self.logger.warning(f"  ❌ {file}")
         
@@ -441,87 +263,56 @@ class DocumentProcessor:
         return documents
     
     def create_vector_database(self, documents: List[Any], progress_callback=None) -> bool:
-        """Create or update vector database with debugging"""
+        """Create or update vector database"""
         try:
-            self.logger.info(f"Creating vector database with {len(documents)} documents...")
-            
             if progress_callback:
                 progress_callback(0, 1, "Creating vector database...")
             
-            # Create directory
+            # Create directory if it doesn't exist
             os.makedirs(self.config.persist_directory, exist_ok=True)
-            self.logger.debug(f"Database directory: {self.config.persist_directory}")
             
-            # Test embeddings before creating database
-            if not self.embeddings:
-                self.logger.error("Embeddings not initialized")
-                return False
-            
-            self.logger.debug("Testing embeddings before database creation...")
-            test_embedding = self.embeddings.embed_query("test")
-            self.logger.debug(f"Test embedding successful, dimension: {len(test_embedding)}")
-            
-            # Create database
-            self.logger.debug("Creating ChromaDB vector store...")
             self.vector_db = Chroma.from_documents(
                 documents=documents,
                 embedding=self.embeddings,
                 persist_directory=self.config.persist_directory
             )
             
+            # Note: ChromaDB 0.4.x auto-persists, no need to call persist()
+            
             if progress_callback:
                 progress_callback(1, 1, "Vector database created successfully")
             
-            self.logger.info(f"✅ Vector database created successfully with {len(documents)} documents")
+            self.logger.info(f"Vector database created with {len(documents)} documents")
             return True
             
         except Exception as e:
-            self.logger.error(f"❌ Failed to create vector database: {e}")
-            self.logger.debug(f"Full error traceback: {traceback.format_exc()}")
+            self.logger.error(f"Failed to create vector database: {e}")
             return False
     
     def load_existing_database(self) -> bool:
-        """Load existing vector database with debugging"""
+        """Load existing vector database"""
         try:
-            self.logger.debug(f"Checking for existing database at: {self.config.persist_directory}")
-            
             if os.path.exists(self.config.persist_directory) and os.listdir(self.config.persist_directory):
-                self.logger.debug("Found existing database directory with files")
-                
-                if not self.embeddings:
-                    self.logger.error("Cannot load database without embeddings initialized")
-                    return False
-                
                 self.vector_db = Chroma(
                     persist_directory=self.config.persist_directory,
                     embedding_function=self.embeddings
                 )
-                
-                # Test database
-                count = self.vector_db._collection.count()
-                self.logger.info(f"✅ Existing vector database loaded successfully with {count} documents")
+                self.logger.info("Existing vector database loaded successfully")
                 return True
-            else:
-                self.logger.debug("No existing database found")
-                return False
-                
+            return False
         except Exception as e:
-            self.logger.error(f"❌ Failed to load existing database: {e}")
-            self.logger.debug(f"Full error traceback: {traceback.format_exc()}")
+            self.logger.error(f"Failed to load existing database: {e}")
             return False
     
     def get_database_stats(self) -> Dict[str, Any]:
-        """Get database statistics with debugging"""
+        """Get database statistics"""
         if not self.vector_db:
-            self.logger.debug("Database not initialized")
             return {"status": "not_initialized", "count": 0}
         
         try:
             count = self.vector_db._collection.count()
-            self.logger.debug(f"Database stats: {count} documents")
             return {"status": "ready", "count": count}
-        except Exception as e:
-            self.logger.error(f"Error getting database stats: {e}")
+        except:
             return {"status": "error", "count": 0}
 
 class QueryProcessor:
@@ -531,17 +322,14 @@ class QueryProcessor:
         self.config = config
         self.logger = logger
         self.llm = None
-        self.logger.debug("QueryProcessor initialized")
     
     def initialize_llm(self, api_key: str):
-        """Initialize Gemini LLM with enhanced debugging"""
+        """Initialize Gemini LLM with automatic model detection"""
         try:
-            self.logger.info("Initializing LLM...")
-            
             # Configure the API first
             genai.configure(api_key=api_key)
             
-            # Test models in order of preference
+            # Test models in order of preference (best to fallback)
             model_preference = [
                 ("gemini-1.5-pro", "Premium model (paid tier)"),
                 ("gemini-1.5-flash", "Fast model (free tier)"),
@@ -552,30 +340,21 @@ class QueryProcessor:
             
             for model_name, description in model_preference:
                 try:
-                    self.logger.debug(f"Testing {model_name} - {description}")
+                    self.logger.info(f"Testing {model_name} - {description}")
                     
-                    # Create LLM with explicit configuration - FORCE REST TRANSPORT
+                    # Test with ChatGoogleGenerativeAI and explicit API key
                     test_llm = ChatGoogleGenerativeAI(
                         model=model_name,
-                        google_api_key=api_key,
-                        temperature=0.1,
-                        max_tokens=None,
-                        timeout=30,
-                        max_retries=3,
-                        transport='rest'  # Force REST transport to avoid gRPC DNS issues
+                        google_api_key=api_key  # Explicitly pass API key
                     )
-                    
-                    # Test with simple prompt
-                    self.logger.debug(f"Testing {model_name} with simple prompt...")
-                    test_response = test_llm.invoke("Hello, respond with 'OK'")
-                    self.logger.debug(f"Test response: {test_response.content}")
+                    test_response = test_llm.invoke("Hello")
                     
                     # If we get here, the model works
                     self.llm = test_llm
                     self.config.generation_model = model_name
                     
                     if "pro" in model_name and "flash" not in model_name:
-                        self.logger.info(f"✅ SUCCESS: Using premium model {model_name}")
+                        self.logger.info(f"✅ SUCCESS: Using premium model {model_name} - You have Pro access!")
                     else:
                         self.logger.info(f"✅ SUCCESS: Using {model_name} - {description}")
                     
@@ -583,41 +362,29 @@ class QueryProcessor:
                     
                 except Exception as model_error:
                     error_msg = str(model_error).lower()
-                    self.logger.debug(f"Model {model_name} error: {model_error}")
                     
                     if "quota exceeded" in error_msg:
-                        self.logger.warning(f"❌ {model_name} quota exceeded")
+                        self.logger.warning(f"❌ {model_name} quota exceeded - trying next model")
                     elif "permission denied" in error_msg or "not found" in error_msg:
-                        self.logger.info(f"❌ {model_name} not available (requires paid tier)")
+                        self.logger.info(f"❌ {model_name} not available (likely requires paid tier)")
                     else:
                         self.logger.warning(f"❌ {model_name} failed: {model_error}")
                     
                     continue
             
-            self.logger.error("❌ No working models found")
+            self.logger.error("❌ No working models found. Check your API key and internet connection.")
             return False
             
         except Exception as e:
-            self.logger.error(f"❌ Failed to initialize LLM: {e}")
-            self.logger.debug(f"Full error traceback: {traceback.format_exc()}")
+            self.logger.error(f"Failed to initialize LLM: {e}")
             return False
     
     def process_query(self, query: str, vector_db: Any) -> Dict[str, Any]:
-        """Process user query with enhanced debugging"""
+        """Process user query and generate response"""
         try:
-            self.logger.info(f"Processing query: {query[:100]}...")
-            
             # Retrieve relevant documents
-            self.logger.debug("Searching for relevant documents...")
             retrieved_docs = vector_db.similarity_search(query, k=self.config.max_retrieved_docs)
-            self.logger.info(f"Retrieved {len(retrieved_docs)} relevant documents")
-            
-            # Debug retrieved documents
-            for i, doc in enumerate(retrieved_docs):
-                source = doc.metadata.get('source', 'Unknown')
-                page = doc.metadata.get('page_number', 'Unknown')
-                content_len = len(doc.page_content)
-                self.logger.debug(f"Doc {i+1}: {source} (Page {page}) - {content_len} chars")
+            self.logger.info(f"Retrieved {len(retrieved_docs)} relevant documents for query")
             
             # Prepare context
             structured_context = []
@@ -642,29 +409,21 @@ class QueryProcessor:
             context_for_llm = "\n\n".join(structured_context)
             source_list = "Full Source References:\n" + "\n".join(sorted(list(unique_sources)))
             
-            self.logger.debug(f"Context prepared: {len(context_for_llm)} characters")
-            
             # Generate response
-            self.logger.debug("Generating LLM response...")
             prompt = self._create_prompt(query, context_for_llm, source_list)
-            self.logger.debug(f"Prompt length: {len(prompt)} characters")
-            
             response = self.llm.invoke(prompt)
-            self.logger.info(f"✅ Query processed successfully")
-            self.logger.debug(f"Response length: {len(response.content)} characters")
             
             return {
                 "success": True,
                 "answer": response.content,
                 "sources": list(unique_sources),
-                "retrieved_docs": retrieved_docs,
+                "retrieved_docs": retrieved_docs,  # Include full document objects
                 "context": context_for_llm,
                 "num_sources": len(retrieved_docs)
             }
             
         except Exception as e:
-            self.logger.error(f"❌ Query processing failed: {e}")
-            self.logger.debug(f"Full error traceback: {traceback.format_exc()}")
+            self.logger.error(f"Query processing failed: {e}")
             return {
                 "success": False,
                 "error": str(e),
@@ -700,10 +459,9 @@ Please provide a comprehensive, well-attributed answer based ONLY on the provide
 """
 
 class ScientificRAGApp:
-    """Main Relevantr GUI application with enhanced debugging"""
+    """Main Relevantr GUI application"""
     
     def __init__(self):
-        print("[DEBUG] Initializing ScientificRAGApp...")
         self.config = Config()
         self.logger = Logger()
         self.processor = DocumentProcessor(self.config, self.logger)
@@ -717,13 +475,11 @@ class ScientificRAGApp:
         self._last_query_result = None
         self._last_query = None
         
-        self.logger.debug("Setting up GUI...")
         self.setup_gui()
-        self.logger.debug("ScientificRAGApp initialization complete")
     
     def setup_gui(self):
         """Setup the main GUI"""
-        self.root.title("Relevantr - Scientific PDF RAG Application (Debug Version)")
+        self.root.title("Relevantr - Scientific PDF RAG Application")
         self.root.geometry(f"{self.config.window_width}x{self.config.window_height}")
         self.root.minsize(800, 600)
         
@@ -757,86 +513,12 @@ class ScientificRAGApp:
         settings_menu.add_command(label="Configure API Key", command=self.configure_api_key)
         settings_menu.add_command(label="Advanced Settings", command=self.show_advanced_settings)
         
-        # Debug menu
-        debug_menu = tk.Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="Debug", menu=debug_menu)
-        debug_menu.add_command(label="Test Network Connection", command=self.test_network_debug)
-        debug_menu.add_command(label="Test Google API", command=self.test_google_api_debug)
-        debug_menu.add_command(label="Force Enable Query", command=self.force_enable_query)
-        debug_menu.add_command(label="Show System Info", command=self.show_system_info)
-        
         # Help menu
         help_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Help", menu=help_menu)
+        help_menu.add_command(label="Debug: Force Enable Query", command=self.force_enable_query)
+        help_menu.add_separator()
         help_menu.add_command(label="About", command=self.show_about)
-    
-    def test_network_debug(self):
-        """Debug menu item to test network"""
-        self.logger.info("Manual network test requested...")
-        test_network_connectivity()
-        messagebox.showinfo("Network Test", "Network test completed. Check console/logs for details.")
-    
-    def test_google_api_debug(self):
-        """Debug menu item to test Google API"""
-        if not self.api_key:
-            messagebox.showerror("Error", "Please configure API key first")
-            return
-        
-        self.logger.info("Manual Google API test requested...")
-        success = self.processor.test_google_api_connection(self.api_key)
-        
-        if success:
-            messagebox.showinfo("API Test", "Google API test successful! Check logs for details.")
-        else:
-            messagebox.showerror("API Test", "Google API test failed! Check logs for details.")
-    
-    def show_system_info(self):
-        """Show detailed system information"""
-        info = f"""
-SYSTEM INFORMATION:
-==================
-Platform: {sys.platform}
-Python Version: {sys.version}
-Working Directory: {os.getcwd()}
-Base Directory: {BASE_DIR}
-PyInstaller Bundle: {hasattr(sys, '_MEIPASS')}
-
-NETWORK CONFIGURATION:
-=====================
-DNS Servers: {self.get_dns_servers()}
-
-ENVIRONMENT VARIABLES:
-=====================
-GRPC_VERBOSITY: {os.environ.get('GRPC_VERBOSITY', 'Not set')}
-GRPC_TRACE: {os.environ.get('GRPC_TRACE', 'Not set')}
-GOOGLE_API_KEY: {'Set' if os.environ.get('GOOGLE_API_KEY') else 'Not set'}
-
-DIRECTORIES:
-============
-PDF Directory: {self.config.pdf_directory}
-Database Directory: {self.config.persist_directory}
-Log Directory: {self.logger.log_dir}
-
-CONFIGURATION:
-==============
-Embedding Model: {self.config.embedding_model}
-Generation Model: {self.config.generation_model}
-Chunk Size: {self.config.chunk_size}
-Max Retrieved Docs: {self.config.max_retrieved_docs}
-"""
-        
-        # Show in results window
-        self.results_text.delete(1.0, tk.END)
-        self.results_text.insert(tk.END, info)
-        self.status_var.set("System information displayed")
-    
-    def get_dns_servers(self):
-        """Get DNS server information"""
-        try:
-            import socket
-            return socket.getaddrinfo("google.com", 80)[0][4][0]
-        except:
-            return "Unable to determine"
     
     def create_toolbar(self):
         """Create toolbar with action buttons"""
@@ -956,32 +638,22 @@ Max Retrieved Docs: {self.config.max_retrieved_docs}
         self.model_status_label.pack(side=tk.RIGHT, padx=5, pady=2)
     
     def prompt_api_key(self):
-        """Prompt user for Google API key with debugging"""
-        self.logger.debug("Prompting for API key...")
-        
-        # Try to load from .env first
+        """Prompt user for Google API key"""
+        # Try to load from .env first (check current working directory)
         env_path = os.path.join(os.getcwd(), '.env')
-        self.logger.debug(f"Checking for .env file at: {env_path}")
-        
         if os.path.exists(env_path):
-            self.logger.debug("Found .env file, loading...")
             load_dotenv(env_path)
         else:
-            self.logger.debug("No .env file found, trying default locations...")
-            load_dotenv()
+            load_dotenv()  # Try default locations
             
         api_key = os.getenv("GOOGLE_API_KEY")
         
-        if api_key:
-            self.logger.debug("API key found in environment variables")
-        else:
-            self.logger.debug("No API key in environment, prompting user...")
+        if not api_key:
             api_key = self.get_api_key_from_user()
         
         if api_key:
             self.set_api_key(api_key)
         else:
-            self.logger.warning("No API key provided")
             messagebox.showwarning("API Key Required", 
                                  "Google API key is required to use this application. "
                                  "Please configure it in Settings menu.")
@@ -990,16 +662,14 @@ Max Retrieved Docs: {self.config.max_retrieved_docs}
         """Get API key from user input"""
         dialog = tk.Toplevel(self.root)
         dialog.title("Google API Key Required")
-        dialog.geometry("500x250")
+        dialog.geometry("400x200")
         dialog.transient(self.root)
         dialog.grab_set()
         
         ttk.Label(dialog, text="Please enter your Google Gemini API key:").pack(pady=10)
-        ttk.Label(dialog, text="Get your API key from: https://makersuite.google.com/app/apikey", 
-                 font=("Arial", 8)).pack(pady=5)
         
         api_key_var = tk.StringVar()
-        entry = ttk.Entry(dialog, textvariable=api_key_var, width=60, show="*")
+        entry = ttk.Entry(dialog, textvariable=api_key_var, width=50, show="*")
         entry.pack(pady=5)
         entry.focus()
         
@@ -1007,11 +677,9 @@ Max Retrieved Docs: {self.config.max_retrieved_docs}
         
         def on_ok():
             result["api_key"] = api_key_var.get().strip()
-            self.logger.debug(f"API key entered: {result['api_key'][:10] if result['api_key'] else 'None'}...")
             dialog.destroy()
         
         def on_cancel():
-            self.logger.debug("API key dialog cancelled")
             dialog.destroy()
         
         ttk.Button(dialog, text="OK", command=on_ok).pack(side=tk.LEFT, padx=20, pady=20)
@@ -1021,15 +689,11 @@ Max Retrieved Docs: {self.config.max_retrieved_docs}
         return result["api_key"]
     
     def set_api_key(self, api_key: str):
-        """Set and validate API key with enhanced debugging"""
-        self.logger.info("Setting and validating API key...")
+        """Set and validate API key"""
         self.api_key = api_key
         
-        # Initialize components with detailed logging
-        self.logger.debug("Initializing embeddings...")
+        # Initialize components
         embeddings_ok = self.processor.initialize_embeddings(api_key)
-        
-        self.logger.debug("Initializing LLM...")
         llm_ok = self.query_processor.initialize_llm(api_key)
         
         if embeddings_ok and llm_ok:
@@ -1045,21 +709,18 @@ Max Retrieved Docs: {self.config.max_retrieved_docs}
                 self.status_var.set("Ready - API configured successfully")
             
             # Try to load existing database
-            self.logger.debug("Checking for existing database...")
             if self.processor.load_existing_database():
                 self.update_database_status()
+                # Force enable query interface
                 self.ask_btn.config(state='normal')
                 self.query_text.config(state='normal')
-                self.logger.info("✅ API configuration complete - database loaded")
             else:
-                self.logger.info("✅ API configuration complete - no existing database")
                 self.status_var.set("Ready - Please process PDFs to create database")
         else:
             self.api_status_var.set("API: Error")
             self.model_status_var.set("")
             self.status_var.set("Error - Failed to configure API")
-            self.logger.error("❌ Failed to configure API")
-            messagebox.showerror("API Error", "Failed to configure Google API. Please check your API key and network connection.")
+            messagebox.showerror("API Error", "Failed to configure Google API. Please check your API key.")
     
     def select_pdf_directory(self):
         """Select PDF directory"""
@@ -1067,26 +728,21 @@ Max Retrieved Docs: {self.config.max_retrieved_docs}
         if directory:
             self.pdf_dir_var.set(directory)
             self.config.pdf_directory = directory
-            self.logger.debug(f"PDF directory selected: {directory}")
     
     def process_pdfs(self):
-        """Process PDFs in a separate thread with enhanced debugging"""
+        """Process PDFs in a separate thread"""
         if self.is_processing:
-            self.logger.warning("PDF processing already in progress")
             return
         
         if not self.api_key:
-            self.logger.error("No API key configured")
             messagebox.showerror("Error", "Please configure your Google API key first.")
             return
         
         pdf_directory = self.pdf_dir_var.get().strip()
         if not pdf_directory:
-            self.logger.error("No PDF directory selected")
             messagebox.showerror("Error", "Please select a PDF directory.")
             return
         
-        self.logger.info(f"Starting PDF processing for directory: {pdf_directory}")
         self.is_processing = True
         self.process_btn.config(state='disabled')
         
@@ -1095,21 +751,18 @@ Max Retrieved Docs: {self.config.max_retrieved_docs}
         
         def process_thread():
             try:
-                self.logger.debug("PDF processing thread started")
-                
                 # Process PDFs
                 documents = self.processor.load_and_process_pdfs(pdf_directory, progress_callback)
                 
                 if documents:
                     # Create database
                     success = self.processor.create_vector_database(documents, progress_callback)
+                    
                     self.root.after(0, lambda: self.on_processing_complete(success, len(documents)))
                 else:
                     self.root.after(0, lambda: self.on_processing_error("No documents were processed"))
                     
             except Exception as e:
-                self.logger.error(f"PDF processing thread error: {e}")
-                self.logger.debug(f"Full error traceback: {traceback.format_exc()}")
                 self.root.after(0, lambda: self.on_processing_error(str(e)))
         
         threading.Thread(target=process_thread, daemon=True).start()
@@ -1129,21 +782,20 @@ Max Retrieved Docs: {self.config.max_retrieved_docs}
         self.process_btn.config(state='normal')
         
         if success:
-            self.logger.info(f"✅ PDF processing completed successfully: {doc_count} documents")
+            # Force update database status to enable query interface
             self.update_database_status()
             self.progress_var.set(f"Complete - Processed {doc_count} document chunks")
             self.status_var.set("Ready - Database updated successfully")
             
-            # Force enable query interface
+            # Force enable query interface as backup
             self.ask_btn.config(state='normal')
             self.query_text.config(state='normal')
             
             messagebox.showinfo("Success", f"Successfully processed PDFs and created database with {doc_count} chunks.\n\nYou can now ask questions!")
         else:
-            self.logger.error("❌ PDF processing failed")
             self.progress_var.set("Error - Processing failed")
             self.status_var.set("Error - Database creation failed")
-            messagebox.showerror("Error", "Failed to create vector database. Check logs for details.")
+            messagebox.showerror("Error", "Failed to create vector database.")
         
         self.progress_bar['value'] = 0
     
@@ -1154,38 +806,35 @@ Max Retrieved Docs: {self.config.max_retrieved_docs}
         self.progress_var.set("Error - Processing failed")
         self.status_var.set("Error - Processing failed")
         self.progress_bar['value'] = 0
-        self.logger.error(f"Processing error: {error_message}")
-        messagebox.showerror("Processing Error", f"Failed to process PDFs:\n{error_message}\n\nCheck logs for detailed information.")
+        messagebox.showerror("Processing Error", f"Failed to process PDFs:\n{error_message}")
     
     def update_database_status(self):
-        """Update database status display with debugging"""
+        """Update database status display"""
         stats = self.processor.get_database_stats()
-        self.logger.debug(f"Database status check: {stats}")
+        self.logger.info(f"Database status check: {stats}")
         
         if stats["status"] == "ready":
             self.db_status_var.set(f"Database: Ready ({stats['count']} chunks)")
             self.ask_btn.config(state='normal')
             self.query_text.config(state='normal')
-            self.logger.info("✅ Query interface enabled - database ready")
+            self.logger.info("Query interface enabled - database ready")
         else:
             self.db_status_var.set("Database: Not Ready")
             self.ask_btn.config(state='disabled')
             self.query_text.config(state='disabled')
-            self.logger.warning(f"❌ Query interface disabled - database status: {stats['status']}")
+            self.logger.warning(f"Query interface disabled - database status: {stats['status']}")
     
     def process_query(self):
-        """Process user query with debugging"""
+        """Process user query"""
         query = self.query_text.get(1.0, tk.END).strip()
         if not query:
             messagebox.showwarning("Warning", "Please enter a question.")
             return
         
         if not self.processor.vector_db:
-            self.logger.error("Database not ready for querying")
             messagebox.showerror("Error", "Database not ready. Please process PDFs first.")
             return
         
-        self.logger.info(f"Processing query: {query[:100]}...")
         self.ask_btn.config(state='disabled')
         self.results_text.delete(1.0, tk.END)
         self.clear_sources()
@@ -1194,15 +843,8 @@ Max Retrieved Docs: {self.config.max_retrieved_docs}
         self.root.update_idletasks()
         
         def query_thread():
-            try:
-                self.logger.debug("Query processing thread started")
-                result = self.query_processor.process_query(query, self.processor.vector_db)
-                self.root.after(0, lambda: self.display_results(result))
-            except Exception as e:
-                self.logger.error(f"Query thread error: {e}")
-                self.logger.debug(f"Full error traceback: {traceback.format_exc()}")
-                error_result = {"success": False, "error": str(e), "answer": f"Query processing failed: {e}"}
-                self.root.after(0, lambda: self.display_results(error_result))
+            result = self.query_processor.process_query(query, self.processor.vector_db)
+            self.root.after(0, lambda: self.display_results(result))
         
         threading.Thread(target=query_thread, daemon=True).start()
     
@@ -1215,7 +857,6 @@ Max Retrieved Docs: {self.config.max_retrieved_docs}
         self._last_query = self.query_text.get(1.0, tk.END).strip()
         
         if result["success"]:
-            self.logger.info("✅ Query completed successfully")
             # Display answer
             self.results_text.insert(tk.END, result["answer"])
             
@@ -1228,7 +869,6 @@ Max Retrieved Docs: {self.config.max_retrieved_docs}
             
             self.status_var.set(f"Query complete - Found {result.get('num_sources', 0)} relevant sources")
         else:
-            self.logger.error(f"❌ Query failed: {result.get('error', 'Unknown error')}")
             self.results_text.insert(tk.END, f"Error: {result.get('error', 'Unknown error')}")
             self.status_var.set("Query failed")
         
@@ -1249,7 +889,7 @@ Max Retrieved Docs: {self.config.max_retrieved_docs}
             item_id = self.sources_tree.insert("", tk.END, 
                                               text=passage_id, 
                                               values=(source_file, page_num),
-                                              tags=(str(i),))
+                                              tags=(str(i),))  # Store index as tag for retrieval
         
         # Clear source content display
         self.source_content_text.delete(1.0, tk.END)
@@ -1292,8 +932,6 @@ Max Retrieved Docs: {self.config.max_retrieved_docs}
                 # Highlight the header
                 self.source_content_text.tag_add("header", "1.0", "4.0")
                 self.source_content_text.tag_config("header", font=("Arial", 10, "bold"), foreground="blue")
-                
-                self.logger.debug(f"Displayed source content for: {source_file} (Page {page_num})")
                 
         except (ValueError, IndexError) as e:
             self.logger.error(f"Error displaying source content: {e}")
@@ -1340,10 +978,8 @@ Max Retrieved Docs: {self.config.max_retrieved_docs}
                 self.processor.vector_db = None
                 self.update_database_status()
                 self.status_var.set("Database reset - Please process PDFs to create new database")
-                self.logger.info("Database reset successfully")
                 messagebox.showinfo("Success", "Database reset successfully.")
             except Exception as e:
-                self.logger.error(f"Failed to reset database: {e}")
                 messagebox.showerror("Error", f"Failed to reset database: {e}")
     
     def configure_api_key(self):
@@ -1432,11 +1068,9 @@ Max Retrieved Docs: {self.config.max_retrieved_docs}
                         for i, source in enumerate(self._last_query_result['sources'], 1):
                             f.write(f"{i}. {source}\n")
                 
-                self.logger.info(f"Results exported to {filename}")
                 messagebox.showinfo("Success", f"Results exported to {filename}")
                 
             except Exception as e:
-                self.logger.error(f"Failed to export results: {e}")
                 messagebox.showerror("Export Error", f"Failed to export results: {e}")
     
     def show_about(self):
@@ -1446,24 +1080,16 @@ Max Retrieved Docs: {self.config.max_retrieved_docs}
         is_premium = "pro" in current_model.lower() and "flash" not in current_model.lower()
         
         about_text = f"""
-🔬 RELEVANTR - Scientific PDF RAG Application 📚 (DEBUG VERSION)
-================================================================
+🔬 RELEVANTR - Scientific PDF RAG Application 📚
+======================================================
 
-Version: 1.0 (Enhanced Debug Build)
+Version: 1.0
 Created by: Erik Bitzek, August 2025
-Fixed: Network connectivity and debugging improvements
 
 CURRENT CONFIGURATION:
 AI Model: {current_model}
 Tier: {'Premium (Paid)' if is_premium else 'Free Tier'}
 Status: {'🎯 You have Pro access!' if is_premium else '✅ Using free tier'}
-
-DEBUGGING FEATURES:
-• Enhanced network connectivity testing
-• Detailed API connection diagnostics
-• Comprehensive error logging
-• System information display
-• Manual debug tools in Debug menu
 
 ABOUT:
 Relevantr is a comprehensive Retrieval-Augmented Generation (RAG) 
@@ -1493,26 +1119,13 @@ USAGE:
 4. Ask scientific questions
 5. Explore results with source citations
 
-DEBUG MENU OPTIONS:
-• Test Network Connection - Check internet connectivity
-• Test Google API - Verify API key and connection
-• Force Enable Query - Override interface restrictions
-• Show System Info - Display detailed system configuration
-
-TROUBLESHOOTING:
-If the application hangs or fails to connect:
-1. Check Debug menu -> Test Network Connection
-2. Verify API key with Debug menu -> Test Google API
-3. Check logs directory for detailed error information
-4. Ensure firewall allows network access for the application
-
 COPYRIGHT:
 © 2025 Erik Bitzek - Relevantr
 Licensed under CC BY-NC-SA 4.0
 
 For more information, visit: https://github.com/biterik/Relevantr
 
-================================================================
+======================================================
 """
         
         # Clear the results window and show about info
@@ -1523,7 +1136,7 @@ For more information, visit: https://github.com/biterik/Relevantr
         self.clear_sources()
         if hasattr(self, 'source_content_text'):
             self.source_content_text.delete(1.0, tk.END)
-            self.source_content_text.insert(tk.END, "Debug version information displayed in main window.")
+            self.source_content_text.insert(tk.END, "About information displayed in main window.")
         
         # Update status
         model_info = f"Premium model" if is_premium else "Free tier model"
@@ -1534,30 +1147,26 @@ For more information, visit: https://github.com/biterik/Relevantr
         self.ask_btn.config(state='normal')
         self.query_text.config(state='normal')
         self.status_var.set("Debug: Query interface force-enabled")
-        self.logger.info("Query interface force-enabled via debug menu")
         messagebox.showinfo("Debug", "Query interface has been force-enabled. You can now try asking questions.")
     
     def run(self):
-        """Run the application with enhanced error handling"""
+        """Run the application"""
         try:
-            self.logger.info("Starting Relevantr - Scientific PDF RAG Application (Debug Version)")
+            self.logger.info("Starting Relevantr - Scientific PDF RAG Application")
             self.root.mainloop()
         except KeyboardInterrupt:
             self.logger.info("Relevantr interrupted by user")
         except Exception as e:
             self.logger.error(f"Relevantr application error: {e}")
-            self.logger.debug(f"Full error traceback: {traceback.format_exc()}")
-            messagebox.showerror("Application Error", f"An unexpected error occurred: {e}\n\nCheck logs for detailed information.")
+            messagebox.showerror("Application Error", f"An unexpected error occurred: {e}")
         finally:
             self.logger.info("Relevantr closing")
 
 
 def main():
-    """Main entry point with enhanced dependency checking and debugging"""
+    """Main entry point"""
     try:
-        print("[DEBUG] Starting Relevantr main function...")
-        
-        # Check dependencies with detailed reporting
+        # Check dependencies
         required_packages = [
             ('tkinter', 'tk'),
             ('google.generativeai', 'google-generativeai'), 
@@ -1566,26 +1175,18 @@ def main():
             ('langchain_google_genai', 'langchain-google-genai'),
             ('chromadb', 'chromadb'),
             ('tqdm', 'tqdm'),
-            ('dotenv', 'python-dotenv'),
-            ('requests', 'requests'),
-            ('urllib3', 'urllib3')
+            ('dotenv', 'python-dotenv')  # Import name is 'dotenv', package name is 'python-dotenv'
         ]
         
-        print("[DEBUG] Checking required packages...")
         missing_packages = []
         for import_name, install_name in required_packages:
             try:
                 __import__(import_name)
-                print(f"[DEBUG] ✅ {import_name} - OK")
-            except ImportError as e:
-                print(f"[DEBUG] ❌ {import_name} - MISSING: {e}")
+            except ImportError:
                 missing_packages.append(install_name)
         
         if missing_packages:
-            print("\n" + "="*60)
-            print("❌ MISSING REQUIRED PACKAGES FOR RELEVANTR")
-            print("="*60)
-            print("Install missing packages with either:")
+            print("Missing required packages for Relevantr. Install with either:")
             print("\nUsing pip:")
             print("pip install " + " ".join(missing_packages))
             print("\nUsing conda:")
@@ -1596,32 +1197,15 @@ def main():
                 print("conda install -c conda-forge " + " ".join(conda_packages))
             if pip_packages:
                 print("pip install " + " ".join(pip_packages))
-            print("="*60)
             return
-        
-        print("[DEBUG] All required packages found")
-        print("[DEBUG] Creating and running Relevantr...")
         
         # Create and run Relevantr
         app = ScientificRAGApp()
         app.run()
         
     except Exception as e:
-        print(f"[ERROR] Failed to start Relevantr: {e}")
-        print("[DEBUG] Full error traceback:")
+        print(f"Failed to start Relevantr: {e}")
         traceback.print_exc()
-        
-        # Try to show error in GUI if possible
-        try:
-            import tkinter as tk
-            from tkinter import messagebox
-            root = tk.Tk()
-            root.withdraw()  # Hide main window
-            messagebox.showerror("Startup Error", 
-                               f"Failed to start Relevantr: {e}\n\n"
-                               f"Check console output for detailed error information.")
-        except:
-            pass  # If GUI fails, error is already printed to console
 
 
 if __name__ == "__main__":
