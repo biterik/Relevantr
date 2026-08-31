@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+title: "Relevantr"
+type: software
+authors:
+  - family-names: Bitzek
+    given-names: Erik
+    email: e.bitzek@mpi-susmat.de
+    orcid: "https://orcid.org/0000-0001-7430-3694"
+    affiliation: >-
+      Department of Materials Science, WW8-Materials Simulation,
+      Friedrich-Alexander-Universität Erlangen-Nürnberg,
+      Dr.-Mack-Straße 77, 90762 Fürth, Germany
+abstract: >-
+  A retrieval-augmented generation (RAG) application for scientific
+  literature analysis: it processes and indexes a local collection of
+  PDF papers into a ChromaDB vector database, answers complex questions
+  about them with Google Gemini, and reports precise source attribution
+  down to file name, page number and the individual passages behind
+  each answer. Includes a desktop graphical user interface, adjustable
+  chunking and retrieval parameters, and export of results.
+  Funded by the Deutsche Forschungsgemeinschaft (DFG, German Research
+  Foundation) under the National Research Data Infrastructure –
+  NFDI 38/1 – project number 460247524 (NFDI-MatWerk consortium).
+license: CC-BY-NC-SA-4.0
+repository-code: "https://github.com/biterik/Relevantr"
+url: "https://github.com/biterik/Relevantr"
+version: "1.1"
+date-released: "2025-08-06"
+keywords:
+  - retrieval-augmented-generation
+  - scientific-literature
+  - pdf
+  - large-language-models
+  - research-software-engineering
+  - software-sustainability
+  - nfdi-matwerk
