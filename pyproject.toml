@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "relevantr"
+version = "2.0.0"
+description = "A scientific PDF RAG (Retrieval-Augmented Generation) desktop app with hybrid search and optional LLM answers"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "CC-BY-NC-SA-4.0" }
+authors = [{ name = "Erik Bitzek" }]
+keywords = ["rag", "retrieval", "pdf", "scientific-literature", "lancedb"]
+dependencies = [
+    "lancedb>=0.15",
+    "pymupdf>=1.24",
+    "openai>=1.40",
+    "platformdirs>=4.0",
+    "keyring>=24.0",
+    "python-dotenv>=1.0",
+    "tqdm>=4.65",
+    "tiktoken>=0.7",
+    "numpy>=1.24",
+    "pandas>=2.0",
+    "pyarrow>=14.0",
+]
+
+[project.optional-dependencies]
+# Local embedding backend + cross-encoder reranker (recommended install).
+local = [
+    "sentence-transformers>=3.0",
+    "torch>=2.1",
+]
+test = [
+    "pytest>=8.0",
+]
+
+[project.scripts]
+relevantr = "relevantr.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/biterik/Relevantr"
+Issues = "https://github.com/biterik/Relevantr/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "local_model: tests that need the local embedding model downloaded",
+]

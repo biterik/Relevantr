@@ -1,24 +1,24 @@
 # -*- mode: python ; coding: utf-8 -*-
+# PyInstaller spec for the macOS build of Relevantr v2 (src/relevantr package).
 from PyInstaller.utils.hooks import collect_all
 
 datas = []
 binaries = []
-hiddenimports = ['chromadb.telemetry.product.posthog', 'posthog']
-tmp_ret = collect_all('chromadb')
-datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
-tmp_ret = collect_all('google')
-datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
-tmp_ret = collect_all('langchain')
-datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
-tmp_ret = collect_all('langchain_community')
-datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
-tmp_ret = collect_all('langchain_google_genai')
-datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
-
+hiddenimports = [
+    "fitz",
+    "keyring.backends.macOS",
+    "tiktoken_ext.openai_public",
+    "tiktoken_ext",
+]
+for package in ("lancedb", "sentence_transformers", "tiktoken", "keyring"):
+    d, b, h = collect_all(package)
+    datas += d
+    binaries += b
+    hiddenimports += h
 
 a = Analysis(
-    ['relevantr.py'],
-    pathex=[],
+    ["src/relevantr/__main__.py"],
+    pathex=["src"],
     binaries=binaries,
     datas=datas,
     hiddenimports=hiddenimports,
@@ -27,7 +27,6 @@ a = Analysis(
     runtime_hooks=[],
     excludes=[],
     noarchive=False,
-    optimize=0,
 )
 pyz = PYZ(a.pure)
 
@@ -37,7 +36,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='Relevantr',
+    name="Relevantr",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -50,11 +49,11 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['assets/icon.icns'],
+    icon=["assets/icon.icns"],
 )
 app = BUNDLE(
     exe,
-    name='Relevantr.app',
-    icon='assets/icon.icns',
+    name="Relevantr.app",
+    icon="assets/icon.icns",
     bundle_identifier=None,
 )

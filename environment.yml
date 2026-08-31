@@ -1,18 +1,11 @@
-name: scientific-rag
+name: relevantr
 channels:
   - conda-forge
-  - defaults
 dependencies:
-  - python=3.11  # Updated to 3.11 for better performance
-  - tk  # Tkinter (usually included with Python)
-  - tqdm
-  - python-dotenv
+  - python=3.11
+  - tk  # Tkinter GUI toolkit
   - pip
-  # Install via pip (not available or better maintained via pip)
   - pip:
-    - google-generativeai
-    - langchain
-    - langchain-community
-    - langchain-google-genai
-    - chromadb
-    - pymupdf
+      # Installs Relevantr with the local embedding backend and the
+      # cross-encoder reranker (see pyproject.toml for the dependency list).
+      - -e .[local,test]

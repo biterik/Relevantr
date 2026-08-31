@@ -71,6 +71,10 @@ Thumbs.db
 # Jupyter Notebooks
 .ipynb_checkpoints
 
+# Test / tool caches
+.pytest_cache/
+.ruff_cache/
+
 # Conda
 .conda/
 
