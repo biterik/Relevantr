@@ -1,16 +1,19 @@
 # -*- mode: python ; coding: utf-8 -*-
-# PyInstaller spec for the Windows build of Relevantr v2: one-dir bundle.
+# PyInstaller spec for the Linux build of Relevantr v2: one-dir bundle.
 # Build with `python build.py` in an environment where torch was installed
 # from the CPU wheel index (https://download.pytorch.org/whl/cpu) BEFORE
 # `pip install ".[local]"` — otherwise CUDA libraries balloon the bundle by
-# gigabytes. Pillow must be installed for the PNG icon conversion.
+# gigabytes. Build on the oldest supported distro (ubuntu-22.04 in CI) for
+# glibc compatibility; tkinter's tcl/tk data is picked up by PyInstaller's
+# standard hook as long as the build Python has a working tkinter.
 from PyInstaller.utils.hooks import collect_all
 
 datas = []
 binaries = []
 hiddenimports = [
     "fitz",
-    "keyring.backends.Windows",
+    "keyring.backends.SecretService",
+    "keyring.backends.kwallet",
     "tiktoken_ext.openai_public",
     "tiktoken_ext",
 ]
@@ -62,7 +65,6 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=["assets/Relevantr_logo.png"],
 )
 
 coll = COLLECT(

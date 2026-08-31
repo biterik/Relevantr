@@ -1,0 +1,155 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build-macos:
+    runs-on: macos-latest # Apple Silicon (arm64)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Check tag matches pyproject version
+        shell: python
+        run: |
+          import os, sys, tomllib
+          tag = os.environ["GITHUB_REF_NAME"].lstrip("v")
+          version = tomllib.load(open("pyproject.toml", "rb"))["project"]["version"]
+          if tag.split("-", 1)[0] != version:
+              sys.exit(f"tag {tag!r} does not match pyproject.toml version {version!r}")
+      - name: Install
+        run: |
+          pip install ".[local]" pyinstaller
+      - name: Build .app and DMG
+        run: python build.py --version-tag "$GITHUB_REF_NAME"
+      - name: Smoke-test the bundle
+        run: dist/Relevantr.app/Contents/MacOS/Relevantr --version
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos
+          path: dist/*.dmg
+          if-no-files-found: error
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Check tag matches pyproject version
+        shell: python
+        run: |
+          import os, sys, tomllib
+          tag = os.environ["GITHUB_REF_NAME"].lstrip("v")
+          version = tomllib.load(open("pyproject.toml", "rb"))["project"]["version"]
+          if tag.split("-", 1)[0] != version:
+              sys.exit(f"tag {tag!r} does not match pyproject.toml version {version!r}")
+      - name: Install (CPU-only torch first)
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install ".[local]" pyinstaller pillow
+      - name: Build one-dir bundle and zip
+        run: python build.py --version-tag "$env:GITHUB_REF_NAME"
+      - name: Smoke-test the bundle
+        shell: pwsh
+        # Start-Process -Wait: pwsh does not wait for windowed exes on its own
+        run: |
+          $p = Start-Process -FilePath dist\Relevantr\Relevantr.exe -ArgumentList '--version' -Wait -PassThru
+          exit $p.ExitCode
+      - name: Build Inno Setup installer
+        shell: pwsh
+        run: |
+          $version = $env:GITHUB_REF_NAME.TrimStart("v")
+          iscc /DAppVersion=$version packaging\relevantr.iss
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: |
+            dist/*.zip
+            dist/*-setup.exe
+          if-no-files-found: error
+
+  build-linux:
+    runs-on: ubuntu-22.04 # oldest supported runner, for glibc compatibility
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Check tag matches pyproject version
+        shell: python
+        run: |
+          import os, sys, tomllib
+          tag = os.environ["GITHUB_REF_NAME"].lstrip("v")
+          version = tomllib.load(open("pyproject.toml", "rb"))["project"]["version"]
+          if tag.split("-", 1)[0] != version:
+              sys.exit(f"tag {tag!r} does not match pyproject.toml version {version!r}")
+      - name: Install (CPU-only torch first)
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install ".[local]" pyinstaller
+      - name: Build one-dir bundle and tar.gz
+        run: python build.py --version-tag "$GITHUB_REF_NAME"
+      - name: Smoke-test the bundle
+        run: dist/Relevantr/Relevantr --version
+      - name: Build AppImage
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          mkdir -p AppDir/usr/bin
+          cp -a dist/Relevantr/. AppDir/usr/bin/
+          ln -s usr/bin/Relevantr AppDir/AppRun
+          cp packaging/relevantr.desktop AppDir/
+          cp assets/Relevantr_logo.png AppDir/relevantr.png
+          curl -fsSL -o appimagetool \
+            https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x appimagetool
+          ARCH=x86_64 ./appimagetool --appimage-extract-and-run AppDir \
+            "dist/Relevantr-${version}-linux-x86_64.AppImage"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: |
+            dist/*.tar.gz
+            dist/*.AppImage
+          if-no-files-found: error
+
+  release:
+    needs: [build-macos, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          generate_release_notes: true
+          body: |
+            **Relevantr v2** is a full modernization: local embeddings that work
+            completely offline, hybrid search (semantic + BM25 keyword matching),
+            cross-encoder reranking, and a provider-agnostic LLM layer for any
+            OpenAI-compatible service — or none at all (retrieval-only mode needs
+            no API key and no network).
+
+            Download the installer for your platform below. First launch
+            downloads the embedding/reranker models (~3.5 GB) once; see the
+            [install notes](https://github.com/biterik/Relevantr#-download--install)
+            for the macOS Gatekeeper / Windows SmartScreen first-launch steps.
+            v1 indexes cannot be reused — see the
+            [migration note](https://github.com/biterik/Relevantr#-migrating-from-relevantr-v1).
+          files: artifacts/*

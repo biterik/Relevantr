@@ -2,10 +2,27 @@
   <img src="assets/Relevantr_logo2.png" alt="Relevantr Logo" width="400"/>
 </p>
 <p align="center"><em>A Scientific PDF RAG Application for Advanced Literature Analysis</em></p>
+<p align="center">
+  <a href="https://github.com/biterik/Relevantr/actions/workflows/test.yml"><img src="https://github.com/biterik/Relevantr/actions/workflows/test.yml/badge.svg" alt="Tests"/></a>
+  <a href="https://github.com/biterik/Relevantr/releases/latest"><img src="https://img.shields.io/github/v/release/biterik/Relevantr" alt="Latest release"/></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0--or--later-blue" alt="License: AGPL-3.0-or-later"/></a>
+</p>
 
 **Relevantr** is a desktop application for asking questions about your own collection of scientific PDF papers. It is a RAG (Retrieval-Augmented Generation) tool: it indexes your papers locally, finds the passages most relevant to a question, and — only if you want — hands those passages to an AI model to compose an answer with precise source attribution (file name and page number for every claim).
 
 **Version 2.0** is a full modernization: local embeddings that work completely offline, hybrid search (semantic vectors + exact keyword matching), a cross-encoder reranking stage, and a provider-agnostic AI layer that works with any OpenAI-compatible service — or with none at all.
+
+## 📥 Download & install
+
+Ready-made installers for every release are on the [Releases page](https://github.com/biterik/Relevantr/releases/latest). Each bundle is self-contained (Python and all libraries included, ~2 GB unpacked — mostly PyTorch and the scientific stack). **The first launch needs a network connection once** to download the embedding and reranker models (~3.5 GB) into the Hugging Face cache; after that, retrieval works fully offline. (For a machine without internet access, copy a populated `~/.cache/huggingface` folder over from another machine first.)
+
+| Platform | Download | First-launch note |
+|---|---|---|
+| **macOS** (Apple Silicon) | `Relevantr-<version>-macos-arm64.dmg` — open it and drag Relevantr into Applications | The app is not signed/notarized yet: on first launch **right-click the app → Open → Open**. If macOS still refuses, run `xattr -dr com.apple.quarantine /Applications/Relevantr.app` in Terminal once. Intel Macs are not covered by this bundle — install from source (below). |
+| **Windows** (x86_64) | `Relevantr-<version>-windows-x86_64-setup.exe` (installer with Start-menu shortcut and uninstaller) — or the `.zip` if you prefer no installation: unpack and run `Relevantr.exe` | SmartScreen shows an "unknown publisher" warning because the binary is unsigned: click **More info → Run anyway**. |
+| **Linux** (x86_64) | `Relevantr-<version>-linux-x86_64.AppImage` — `chmod +x`, then run. A plain `.tar.gz` of the same bundle is also available | Built on Ubuntu 22.04; needs a comparably recent glibc. **For Linux users, installing from source with pip/pipx (below) remains the recommended path.** |
+
+Developers, Intel-Mac users, and anyone who prefers a normal Python install: see [Installation from source](#installation) below.
 
 ## ✨ Features
 
@@ -196,14 +213,17 @@ v1 stored its index in a ChromaDB `vector_db/` directory built with Google's now
 
 ## 📦 Building standalone executables
 
-One PyInstaller path per platform:
+One `build.py` for all platforms — it dispatches on `sys.platform` to the matching PyInstaller spec (`relevantr_macos.spec` / `relevantr_windows.spec` / `relevantr_linux.spec`) and packages the result:
 
 ```bash
-python build_mac.py        # macOS  → dist/Relevantr.app   (uses relevantr.spec)
-python build_windows.py    # Windows → dist/Relevantr/      (uses relevantr_windows.spec)
+python build.py   # macOS  → dist/Relevantr.app + .dmg
+                  # Windows → dist/Relevantr/   + .zip  (Inno Setup installer: CI)
+                  # Linux   → dist/Relevantr/   + .tar.gz (AppImage: CI)
 ```
 
-Run them inside an environment where `pip install -e ".[local]"` has been done.
+Run it inside an environment where `pip install ".[local]" pyinstaller` has been done. On Linux and Windows, install torch from the CPU wheel index **first** (`pip install torch --index-url https://download.pytorch.org/whl/cpu`) so CUDA libraries don't balloon the bundle; macOS wheels are CPU/MPS-only already. Model weights are deliberately **not** bundled — they download to the Hugging Face cache on first use. Expect roughly 1.5–2.5 GB unpacked per bundle.
+
+Releases are built automatically: pushing a `v*` tag runs `.github/workflows/release.yml`, which builds all three platforms and attaches the DMG, Inno Setup installer + zip, and AppImage + tar.gz to a GitHub Release.
 
 ## 🧪 Tests
 

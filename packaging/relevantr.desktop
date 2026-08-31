@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Relevantr
+Comment=Scientific PDF retrieval (RAG) with local embeddings
+Exec=Relevantr
+Icon=relevantr
+Terminal=false
+Categories=Science;Education;Office;
