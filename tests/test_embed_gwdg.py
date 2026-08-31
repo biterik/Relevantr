@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """GWDG embedding backend with a mocked OpenAI-compatible client
 (used when no GWDG_API_KEY is available in the test environment)."""
 

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Incremental updates: only new/changed files are embedded, removed files'
 chunks disappear, and changed chunk settings demand a rebuild."""
 

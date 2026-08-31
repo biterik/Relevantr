@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Cross-encoder reranking stage.
 
 Hybrid search retrieves ~retrieve_k candidates; this stage rescores them with

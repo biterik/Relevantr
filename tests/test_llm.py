@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """LLM layer: prompt assembly, and the retrieval-only path with a mock client."""
 
 from types import SimpleNamespace

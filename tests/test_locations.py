@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Independent storage locations: PDF dir and DB dir on different paths,
 and clear messages when a location is unavailable."""
 

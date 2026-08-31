@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """LanceDB storage layer with a JSON manifest.
 
 The database directory is self-contained (LanceDB table + manifest.json), so

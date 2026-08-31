@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Configuration and API-key handling for Relevantr.
 
 The configuration is a plain JSON file in the platformdirs user-config

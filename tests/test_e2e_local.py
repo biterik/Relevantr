@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """End-to-end test with two tiny generated PDFs and the real local embedding
 backend (Qwen/Qwen3-Embedding-0.6B). Skipped unless the model is already
 downloaded to the Hugging Face cache."""

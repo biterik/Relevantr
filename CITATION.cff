@@ -22,7 +22,7 @@ abstract: >-
   Funded by the Deutsche Forschungsgemeinschaft (DFG, German Research
   Foundation) under the National Research Data Infrastructure –
   NFDI 38/1 – project number 460247524 (NFDI-MatWerk consortium).
-license: CC-BY-NC-SA-4.0
+license: AGPL-3.0-or-later
 repository-code: "https://github.com/biterik/Relevantr"
 url: "https://github.com/biterik/Relevantr"
 version: "2.0"

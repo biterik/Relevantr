@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """PDF extraction and token-aware chunking.
 
 Extraction uses pymupdf directly (no LangChain). The splitter works on token

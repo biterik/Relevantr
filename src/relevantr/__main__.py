@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Entry point: `python -m relevantr` (GUI) or `python -m relevantr <cmd>` (CLI)."""
 
 import logging

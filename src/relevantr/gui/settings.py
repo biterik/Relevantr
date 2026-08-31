@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Settings dialog: storage locations, embeddings, retrieval tuning, and the
 LLM provider section (preset dropdown, base URL, model list, API key)."""
 

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Main Relevantr window.
 
 Long operations (indexing, querying, model loading) run in worker threads and

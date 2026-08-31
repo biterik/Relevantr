@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Reranker: ordering changes when the cross-encoder stage is applied."""
 
 from relevantr.rerank import Passage, Reranker

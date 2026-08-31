@@ -243,13 +243,13 @@ Note that when an external AI provider is enabled, the retrieved passages from y
 
 ## 📄 License
 
-This project is licensed under the **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License** — see the [LICENSE](LICENSE) file for details.
+This project is free software, licensed under the **GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later)** — see the [LICENSE](LICENSE) file for the full text.
 
-**Summary:**
-- ✅ **Free for academic/research use**
-- ✅ **Modifications must be shared under same license**
-- ❌ **No commercial use without permission**
-- 🔄 **Derivative works encouraged with attribution**
+In short: you may use, study, modify, and redistribute Relevantr for any purpose (commercial use included), provided that derivative works are licensed under the AGPL as well and that you make the source code available to users — including users who interact with a modified version over a network.
+
+The bundled [PyMuPDF](https://pymupdf.readthedocs.io/) library is likewise AGPL-licensed.
+
+Versions up to v1.x were released under CC BY-NC-SA 4.0; the relicensing to AGPL was done by the sole author.
 
 ## 🙏 Acknowledgments
 

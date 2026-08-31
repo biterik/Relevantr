@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Chunking: page metadata preserved, overlap correct, token counts in range."""
 
 import pytest

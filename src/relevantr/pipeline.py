@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """High-level operations shared by the GUI and the CLI:
 build/rebuild, incremental update, rebuild-needed checks, info, and query.
 """

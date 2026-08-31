@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Shared fixtures: tiny generated PDFs and a deterministic fake embedder."""
 
 from __future__ import annotations

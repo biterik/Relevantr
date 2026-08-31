@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
 """Optional LLM answer layer over one OpenAI-compatible client.
 
 The app is retrieval-only by default; when the user enables an LLM answer,
