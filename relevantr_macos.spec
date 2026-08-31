@@ -32,7 +32,7 @@ excludes = [
 ]
 
 a = Analysis(
-    ["src/relevantr/__main__.py"],
+    ["packaging/pyinstaller_entry.py"],
     pathex=["src"],
     binaries=binaries,
     datas=datas,
