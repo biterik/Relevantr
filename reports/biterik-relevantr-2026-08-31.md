@@ -1,7 +1,7 @@
 # biterik/Relevantr — repo vitals
 
 ![stars](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fbiterik%2FRelevantr%2Fvitals%2Fbadge%2Fstars.json) ![views/week](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fbiterik%2FRelevantr%2Fvitals%2Fbadge%2Fviews-week.json) 
-_Updated 2026-08-31T18:02:54Z (UTC) · machine-readable: [VITALS.json](VITALS.json) · full history: [history.ndjson](history.ndjson) · daily snapshots: [snapshots/](snapshots/)_
+_Updated 2026-08-31T18:03:14Z (UTC) · machine-readable: [VITALS.json](VITALS.json) · full history: [history.ndjson](history.ndjson) · daily snapshots: [snapshots/](snapshots/)_
 
 | | |
 |---|---|
