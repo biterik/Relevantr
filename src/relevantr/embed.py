@@ -42,8 +42,17 @@ class EmbeddingBackend(ABC):
 
 
 def pick_device() -> str:
+    """MPS on macOS, CUDA, else CPU. The RELEVANTR_DEVICE environment
+    variable (cpu/mps/cuda) overrides the auto-selection — needed e.g. on
+    virtualized macOS (CI runners), where Metal reports available but its
+    shader compiler fails on the model's kernels."""
+    import os
+
     import torch
 
+    override = os.environ.get("RELEVANTR_DEVICE", "").strip().lower()
+    if override:
+        return override
     if torch.backends.mps.is_available():
         return "mps"
     if torch.cuda.is_available():

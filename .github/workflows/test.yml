@@ -47,4 +47,8 @@ jobs:
         run: python -c "from huggingface_hub import snapshot_download; snapshot_download('Qwen/Qwen3-Embedding-0.6B')"
 
       - name: Run tests
+        env:
+          # Virtualized macOS runners report Metal as available but its
+          # shader compiler fails on the model's kernels; CPU everywhere in CI.
+          RELEVANTR_DEVICE: cpu
         run: pytest -v
