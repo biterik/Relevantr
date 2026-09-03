@@ -12,12 +12,18 @@ authors:
       Friedrich-Alexander-Universität Erlangen-Nürnberg,
       Dr.-Mack-Straße 77, 90762 Fürth, Germany
 abstract: >-
-  A retrieval-augmented generation (RAG) application for scientific
-  literature analysis: it processes and indexes a local collection of
-  PDF papers into a ChromaDB vector database, answers complex questions
-  about them with Google Gemini, and reports precise source attribution
-  down to file name, page number and the individual passages behind
-  each answer. Includes a desktop graphical user interface, adjustable
+  A retrieval-augmented generation (RAG) desktop application for
+  scientific literature analysis: it indexes a local collection of PDF
+  papers into an embedded LanceDB database using local embedding models
+  (Qwen3-Embedding-0.6B, fully offline) or the GWDG Chat AI API,
+  retrieves passages by hybrid search (dense vectors fused with BM25
+  full-text ranking) refined by a cross-encoder reranker, and reports
+  precise source attribution down to file name, page number and the
+  individual passages behind each answer. Answers can optionally be
+  composed by any OpenAI-compatible large language model; without one,
+  the application runs in retrieval-only mode with no API key and no
+  network. Includes a desktop graphical user interface and a
+  command-line interface, incremental index updates, adjustable
   chunking and retrieval parameters, and export of results.
   Funded by the Deutsche Forschungsgemeinschaft (DFG, German Research
   Foundation) under the National Research Data Infrastructure –
@@ -25,8 +31,8 @@ abstract: >-
 license: AGPL-3.0-or-later
 repository-code: "https://github.com/biterik/Relevantr"
 url: "https://github.com/biterik/Relevantr"
-version: "2.0"
-date-released: "2026-08-31"
+version: "2.0.0"
+date-released: "2026-09-03"
 keywords:
   - retrieval-augmented-generation
   - scientific-literature
