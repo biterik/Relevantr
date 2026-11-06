@@ -7,27 +7,27 @@
     "prs_merged_30d": 0,
     "prs_opened_30d": 0
   },
-  "collected_at": "2026-11-05T10:53:38Z",
-  "date": "2026-11-05",
+  "collected_at": "2026-11-06T10:50:51Z",
+  "date": "2026-11-06",
   "derived": {
-    "clones_last_30d": 253,
-    "clones_last_7d": 54,
+    "clones_last_30d": 250,
+    "clones_last_7d": 49,
     "downloads_gained_30d": 0,
     "downloads_total": 1,
     "funnel_30d": {
       "downloads_gained": 0,
       "stars_gained": 0,
-      "unique_cloners": 164,
-      "unique_visitors": 20
+      "unique_cloners": 163,
+      "unique_visitors": 27
     },
-    "history_days": 82,
+    "history_days": 83,
     "per_30d": {
-      "clones": 185.2,
+      "clones": 186.6,
       "downloads_gained": 0.4,
       "stars_gained": 0.4,
-      "unique_cloners": 117.0,
-      "unique_visitors": 17.0,
-      "views": 19.6
+      "unique_cloners": 117.8,
+      "unique_visitors": 19.4,
+      "views": 22.0
     },
     "repo_created_at": "2025-08-06T18:58:29Z",
     "star_forecast": {
@@ -40,39 +40,39 @@
     "stars_gained_7d": 0,
     "stars_now": 1,
     "totals": {
-      "clones": 500,
+      "clones": 510,
       "downloads_gained": 1,
       "stars_gained": 1,
-      "unique_cloners": 316,
-      "unique_visitors": 46,
-      "views": 53
+      "unique_cloners": 322,
+      "unique_visitors": 53,
+      "views": 60
     },
-    "tracking_days": 81,
+    "tracking_days": 82,
     "tracking_since": "2026-08-17",
-    "views_last_30d": 21,
-    "views_last_7d": 5,
-    "views_prev_7d": 2,
+    "views_last_30d": 28,
+    "views_last_7d": 11,
+    "views_prev_7d": 3,
     "windows": {
       "30d": {
-        "clones": 253,
+        "clones": 250,
         "downloads_gained": 0,
         "stars_gained": 0,
-        "unique_visitors": 20,
-        "views": 21
+        "unique_visitors": 27,
+        "views": 28
       },
       "365d": {
-        "clones": 500,
+        "clones": 510,
         "downloads_gained": 1,
         "stars_gained": 0,
-        "unique_visitors": 46,
-        "views": 53
+        "unique_visitors": 53,
+        "views": 60
       },
       "90d": {
-        "clones": 500,
+        "clones": 510,
         "downloads_gained": 1,
         "stars_gained": 0,
-        "unique_visitors": 46,
-        "views": 53
+        "unique_visitors": 53,
+        "views": 60
       }
     }
   },
@@ -83,8 +83,8 @@
     "default_branch": "main",
     "fork": false,
     "open_issues": 1,
-    "pushed_at": "2026-11-04T10:53:54Z",
-    "size_kb": 3639
+    "pushed_at": "2026-11-05T10:53:42Z",
+    "size_kb": 3641
   },
   "popularity": {
     "forks": 0,
@@ -154,10 +154,6 @@
   "schema_version": 1,
   "traffic": {
     "clones": {
-      "2026-10-22": {
-        "count": 14,
-        "uniques": 9
-      },
       "2026-10-23": {
         "count": 2,
         "uniques": 2
@@ -209,6 +205,10 @@
       "2026-11-04": {
         "count": 12,
         "uniques": 7
+      },
+      "2026-11-05": {
+        "count": 10,
+        "uniques": 6
       }
     },
     "paths": [
@@ -226,20 +226,51 @@
         "count": 1,
         "path": "/biterik/Relevantr/blob/main/requirements.txt",
         "uniques": 1
+      },
+      {
+        "count": 1,
+        "path": "/biterik/Relevantr/commit/25c57d3c0b4527a3d8899babdec8c537dbb34c94",
+        "uniques": 1
+      },
+      {
+        "count": 1,
+        "path": "/biterik/Relevantr/commit/57157c6939b293eb38ebb7f319e375a0d7afbd45",
+        "uniques": 1
+      },
+      {
+        "count": 1,
+        "path": "/biterik/Relevantr/commit/c2301ecd759217184351b0aebdec7c2a64ff186f",
+        "uniques": 1
+      },
+      {
+        "count": 1,
+        "path": "/biterik/Relevantr/commits",
+        "uniques": 1
+      },
+      {
+        "count": 1,
+        "path": "/biterik/Relevantr/releases",
+        "uniques": 1
+      },
+      {
+        "count": 1,
+        "path": "/biterik/Relevantr/tree/main/assets",
+        "uniques": 1
+      },
+      {
+        "count": 1,
+        "path": "/biterik/Relevantr/tree/main/src/relevantr",
+        "uniques": 1
       }
     ],
     "referrers": [
       {
-        "count": 2,
+        "count": 9,
         "referrer": "aocr.org",
-        "uniques": 2
+        "uniques": 9
       }
     ],
     "views": {
-      "2026-10-22": {
-        "count": 0,
-        "uniques": 0
-      },
       "2026-10-23": {
         "count": 0,
         "uniques": 0
@@ -291,6 +322,10 @@
       "2026-11-04": {
         "count": 1,
         "uniques": 1
+      },
+      "2026-11-05": {
+        "count": 7,
+        "uniques": 7
       }
     }
   }
