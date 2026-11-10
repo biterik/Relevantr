@@ -1,0 +1,270 @@
+{
+  "activity": {
+    "commits_30d": 0,
+    "contributors_total": 1,
+    "issues_closed_30d": 0,
+    "issues_opened_30d": 0,
+    "prs_merged_30d": 0,
+    "prs_opened_30d": 0
+  },
+  "collected_at": "2026-11-10T11:09:41Z",
+  "date": "2026-11-10",
+  "errors": [],
+  "meta": {
+    "archived": false,
+    "created_at": "2025-08-06T18:58:29Z",
+    "default_branch": "main",
+    "fork": false,
+    "open_issues": 1,
+    "pushed_at": "2026-11-09T11:28:53Z",
+    "size_kb": 3647
+  },
+  "popularity": {
+    "forks": 0,
+    "stars": 2,
+    "subscribers": 1,
+    "watchers": 2
+  },
+  "releases": [
+    {
+      "assets": [
+        {
+          "downloads": 0,
+          "name": "Relevantr-2.0.0-linux-x86_64.AppImage"
+        },
+        {
+          "downloads": 0,
+          "name": "Relevantr-2.0.0-linux-x86_64.tar.gz"
+        },
+        {
+          "downloads": 0,
+          "name": "Relevantr-2.0.0-macos-arm64.dmg"
+        },
+        {
+          "downloads": 1,
+          "name": "Relevantr-2.0.0-windows-x86_64-setup.exe"
+        },
+        {
+          "downloads": 0,
+          "name": "Relevantr-2.0.0-windows-x86_64.zip"
+        }
+      ],
+      "name": "v2.0.0",
+      "prerelease": false,
+      "published_at": "2026-09-03T18:02:38Z",
+      "tag": "v2.0.0"
+    },
+    {
+      "assets": [
+        {
+          "downloads": 0,
+          "name": "Relevantr-2.0.0-rc1-linux-x86_64.AppImage"
+        },
+        {
+          "downloads": 0,
+          "name": "Relevantr-2.0.0-rc1-linux-x86_64.tar.gz"
+        },
+        {
+          "downloads": 1,
+          "name": "Relevantr-2.0.0-rc1-macos-arm64.dmg"
+        },
+        {
+          "downloads": 0,
+          "name": "Relevantr-2.0.0-rc1-windows-x86_64-setup.exe"
+        },
+        {
+          "downloads": 0,
+          "name": "Relevantr-2.0.0-rc1-windows-x86_64.zip"
+        }
+      ],
+      "name": "v2.0.0-rc1",
+      "prerelease": true,
+      "published_at": "2026-08-31T21:02:15Z",
+      "tag": "v2.0.0-rc1"
+    }
+  ],
+  "repo": "biterik/Relevantr",
+  "schema_version": 1,
+  "traffic": {
+    "clones": {
+      "2026-10-27": {
+        "count": 14,
+        "uniques": 9
+      },
+      "2026-10-28": {
+        "count": 2,
+        "uniques": 2
+      },
+      "2026-10-29": {
+        "count": 2,
+        "uniques": 2
+      },
+      "2026-10-30": {
+        "count": 15,
+        "uniques": 8
+      },
+      "2026-10-31": {
+        "count": 2,
+        "uniques": 2
+      },
+      "2026-11-01": {
+        "count": 9,
+        "uniques": 5
+      },
+      "2026-11-02": {
+        "count": 6,
+        "uniques": 3
+      },
+      "2026-11-03": {
+        "count": 10,
+        "uniques": 6
+      },
+      "2026-11-04": {
+        "count": 12,
+        "uniques": 7
+      },
+      "2026-11-05": {
+        "count": 10,
+        "uniques": 6
+      },
+      "2026-11-06": {
+        "count": 12,
+        "uniques": 7
+      },
+      "2026-11-07": {
+        "count": 4,
+        "uniques": 3
+      },
+      "2026-11-08": {
+        "count": 10,
+        "uniques": 6
+      },
+      "2026-11-09": {
+        "count": 2,
+        "uniques": 2
+      }
+    },
+    "paths": [
+      {
+        "count": 9,
+        "path": "/biterik/Relevantr",
+        "uniques": 6
+      },
+      {
+        "count": 2,
+        "path": "/biterik/Relevantr/blob/main/README.md",
+        "uniques": 2
+      },
+      {
+        "count": 1,
+        "path": "/biterik/Relevantr/blob/main/requirements.txt",
+        "uniques": 1
+      },
+      {
+        "count": 1,
+        "path": "/biterik/Relevantr/commit/25c57d3c0b4527a3d8899babdec8c537dbb34c94",
+        "uniques": 1
+      },
+      {
+        "count": 1,
+        "path": "/biterik/Relevantr/commit/57157c6939b293eb38ebb7f319e375a0d7afbd45",
+        "uniques": 1
+      },
+      {
+        "count": 1,
+        "path": "/biterik/Relevantr/commit/c2301ecd759217184351b0aebdec7c2a64ff186f",
+        "uniques": 1
+      },
+      {
+        "count": 1,
+        "path": "/biterik/Relevantr/commits",
+        "uniques": 1
+      },
+      {
+        "count": 1,
+        "path": "/biterik/Relevantr/releases",
+        "uniques": 1
+      },
+      {
+        "count": 1,
+        "path": "/biterik/Relevantr/releases/tag/v2.0.0",
+        "uniques": 1
+      },
+      {
+        "count": 1,
+        "path": "/biterik/Relevantr/tree/main/assets",
+        "uniques": 1
+      }
+    ],
+    "referrers": [
+      {
+        "count": 9,
+        "referrer": "aocr.org",
+        "uniques": 9
+      },
+      {
+        "count": 1,
+        "referrer": "github.com",
+        "uniques": 1
+      }
+    ],
+    "views": {
+      "2026-10-27": {
+        "count": 0,
+        "uniques": 0
+      },
+      "2026-10-28": {
+        "count": 2,
+        "uniques": 2
+      },
+      "2026-10-29": {
+        "count": 0,
+        "uniques": 0
+      },
+      "2026-10-30": {
+        "count": 1,
+        "uniques": 1
+      },
+      "2026-10-31": {
+        "count": 0,
+        "uniques": 0
+      },
+      "2026-11-01": {
+        "count": 0,
+        "uniques": 0
+      },
+      "2026-11-02": {
+        "count": 0,
+        "uniques": 0
+      },
+      "2026-11-03": {
+        "count": 3,
+        "uniques": 3
+      },
+      "2026-11-04": {
+        "count": 1,
+        "uniques": 1
+      },
+      "2026-11-05": {
+        "count": 7,
+        "uniques": 7
+      },
+      "2026-11-06": {
+        "count": 0,
+        "uniques": 0
+      },
+      "2026-11-07": {
+        "count": 0,
+        "uniques": 0
+      },
+      "2026-11-08": {
+        "count": 1,
+        "uniques": 1
+      },
+      "2026-11-09": {
+        "count": 5,
+        "uniques": 2
+      }
+    }
+  }
+}
