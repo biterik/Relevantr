@@ -1,21 +1,21 @@
 # biterik/Relevantr — repo vitals
 
 ![stars](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fbiterik%2FRelevantr%2Fvitals%2Fbadge%2Fstars.json) ![views/week](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fbiterik%2FRelevantr%2Fvitals%2Fbadge%2Fviews-week.json) 
-_Updated 2026-11-12T11:05:10Z (UTC) · machine-readable: [VITALS.json](VITALS.json) · full history: [history.ndjson](history.ndjson) · daily snapshots: [snapshots/](snapshots/)_
+_Updated 2026-11-13T10:56:56Z (UTC) · machine-readable: [VITALS.json](VITALS.json) · full history: [history.ndjson](history.ndjson) · daily snapshots: [snapshots/](snapshots/)_
 
 | | |
 |---|---|
 | Repository created | 2025-08-06 |
-| Tracked by repo-vitals since | 2026-08-17 (88 days)³ |
+| Tracked by repo-vitals since | 2026-08-17 (89 days)³ |
 
 
 ## Summary
 
 | Metric | 30 d | 90 d | 365 d |
 |---|---:|---:|---:|
-| Views | 30 | 68 | 68 |
-| Unique visitors¹ | 26 | 58 | 58 |
-| Clones | 233 | 550 | 550 |
+| Views | 29 | 68 | 68 |
+| Unique visitors¹ | 25 | 58 | 58 |
+| Clones | 226 | 552 | 552 |
 | Stars gained | 1 | 1 | 1 |
 | Release downloads gained | 1 | 2 | 2 |
 
@@ -23,14 +23,14 @@ _Updated 2026-11-12T11:05:10Z (UTC) · machine-readable: [VITALS.json](VITALS.js
 
 ## Since tracking began
 
-Everything recorded so far, from 2026-08-17 (88 days) — the total, and the same total expressed as an average rate.
+Everything recorded so far, from 2026-08-17 (89 days) — the total, and the same total expressed as an average rate.
 
 | Metric | Total | Average / 30 d |
 |---|---:|---:|
-| Views | 68 | 23.2 |
-| Unique visitors¹ | 58 | 19.8 |
-| Clones | 550 | 187.5 |
-| Unique cloners¹ | 348 | 118.6 |
+| Views | 68 | 22.9 |
+| Unique visitors¹ | 58 | 19.6 |
+| Clones | 552 | 186.1 |
+| Unique cloners¹ | 350 | 118.0 |
 | Stars gained | 2 | 0.7 |
 | Release downloads gained | 2 | 0.7 |
 
@@ -39,15 +39,15 @@ Averages are the total divided by days tracked, times 30 — not a projection.
 ## Trends — last 30 days
 
 ```
-views  ▂▃▄▁▁▃▁▁▁▁▁▁▁▁▃▁▂▁▁▁▄▂█▁▁▂▆▂▂·  (30 total)
-clones ▃▅▄▁▇▂█▂▅▁▂▁▁▅▁▁▅▁▃▂▄▄▄▄▂▄▁▁▃·  (233 total)
+views  ▃▄▁▁▃▁▁▁▁▁▁▁▁▃▁▂▁▁▁▄▂█▁▁▂▆▂▂▁·  (29 total)
+clones ▅▄▁▇▂█▂▅▁▂▁▁▅▁▁▅▁▃▂▄▄▄▄▂▄▁▁▃▁·  (226 total)
 ```
 
 ('·' = day without data)
 
-Stars: **2** (+1 in 30 d, +1 in 7 d)Next milestone **10★**: ~2033-10-22 (linear, 0.0032★/day) · ~2029-08-11 (exponential) — naive 90-day extrapolation²
+Stars: **2** (+1 in 30 d, +1 in 7 d)Next milestone **10★**: ~2032-04-15 (linear, 0.004★/day) · ~2028-12-24 (exponential) — naive 90-day extrapolation²
 
-**Conversion funnel (30 d):** 26 unique visitors → 149 unique cloners → 1 stars gained → 1 downloads gained
+**Conversion funnel (30 d):** 25 unique visitors → 146 unique cloners → 1 stars gained → 1 downloads gained
 
 ## Where visitors come from (14-day window)
 
@@ -98,7 +98,7 @@ Interactive dashboard: [index.html](index.html) on this branch (raw URLs don't
 render HTML — view it via GitHub Pages on the vitals branch, the repo-vitals
 hub, or locally: `git clone -b vitals … && python -m http.server`).
 A copy of this report named with the repo and today's date lives at
-[reports/biterik-Relevantr-2026-11-12.md](reports/biterik-Relevantr-2026-11-12.md)
+[reports/biterik-Relevantr-2026-11-13.md](reports/biterik-Relevantr-2026-11-13.md)
 — safe to download standalone.
 
 <sub>[repo-vitals](https://github.com/biterik/repo-vitals) by Erik Bitzek —
