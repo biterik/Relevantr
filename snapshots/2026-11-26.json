@@ -1,0 +1,219 @@
+{
+  "activity": {
+    "commits_30d": 0,
+    "contributors_total": 1,
+    "issues_closed_30d": 0,
+    "issues_opened_30d": 0,
+    "prs_merged_30d": 0,
+    "prs_opened_30d": 0
+  },
+  "collected_at": "2026-11-26T12:30:36Z",
+  "date": "2026-11-26",
+  "errors": [],
+  "meta": {
+    "archived": false,
+    "created_at": "2025-08-06T18:58:29Z",
+    "default_branch": "main",
+    "fork": false,
+    "open_issues": 1,
+    "pushed_at": "2026-11-25T12:52:38Z",
+    "size_kb": 3675
+  },
+  "popularity": {
+    "forks": 1,
+    "stars": 2,
+    "subscribers": 1,
+    "watchers": 2
+  },
+  "releases": [
+    {
+      "assets": [
+        {
+          "downloads": 0,
+          "name": "Relevantr-2.0.0-linux-x86_64.AppImage"
+        },
+        {
+          "downloads": 1,
+          "name": "Relevantr-2.0.0-linux-x86_64.tar.gz"
+        },
+        {
+          "downloads": 0,
+          "name": "Relevantr-2.0.0-macos-arm64.dmg"
+        },
+        {
+          "downloads": 1,
+          "name": "Relevantr-2.0.0-windows-x86_64-setup.exe"
+        },
+        {
+          "downloads": 0,
+          "name": "Relevantr-2.0.0-windows-x86_64.zip"
+        }
+      ],
+      "name": "v2.0.0",
+      "prerelease": false,
+      "published_at": "2026-09-03T18:02:38Z",
+      "tag": "v2.0.0"
+    },
+    {
+      "assets": [
+        {
+          "downloads": 0,
+          "name": "Relevantr-2.0.0-rc1-linux-x86_64.AppImage"
+        },
+        {
+          "downloads": 0,
+          "name": "Relevantr-2.0.0-rc1-linux-x86_64.tar.gz"
+        },
+        {
+          "downloads": 1,
+          "name": "Relevantr-2.0.0-rc1-macos-arm64.dmg"
+        },
+        {
+          "downloads": 0,
+          "name": "Relevantr-2.0.0-rc1-windows-x86_64-setup.exe"
+        },
+        {
+          "downloads": 0,
+          "name": "Relevantr-2.0.0-rc1-windows-x86_64.zip"
+        }
+      ],
+      "name": "v2.0.0-rc1",
+      "prerelease": true,
+      "published_at": "2026-08-31T21:02:15Z",
+      "tag": "v2.0.0-rc1"
+    }
+  ],
+  "repo": "biterik/Relevantr",
+  "schema_version": 1,
+  "traffic": {
+    "clones": {
+      "2026-11-12": {
+        "count": 2,
+        "uniques": 2
+      },
+      "2026-11-13": {
+        "count": 14,
+        "uniques": 9
+      },
+      "2026-11-14": {
+        "count": 3,
+        "uniques": 3
+      },
+      "2026-11-15": {
+        "count": 21,
+        "uniques": 11
+      },
+      "2026-11-16": {
+        "count": 2,
+        "uniques": 2
+      },
+      "2026-11-17": {
+        "count": 7,
+        "uniques": 6
+      },
+      "2026-11-18": {
+        "count": 15,
+        "uniques": 8
+      },
+      "2026-11-19": {
+        "count": 13,
+        "uniques": 8
+      },
+      "2026-11-20": {
+        "count": 2,
+        "uniques": 2
+      },
+      "2026-11-21": {
+        "count": 4,
+        "uniques": 3
+      },
+      "2026-11-22": {
+        "count": 18,
+        "uniques": 11
+      },
+      "2026-11-23": {
+        "count": 5,
+        "uniques": 5
+      },
+      "2026-11-24": {
+        "count": 2,
+        "uniques": 2
+      },
+      "2026-11-25": {
+        "count": 2,
+        "uniques": 2
+      }
+    },
+    "paths": [
+      {
+        "count": 2,
+        "path": "/biterik/Relevantr",
+        "uniques": 2
+      },
+      {
+        "count": 1,
+        "path": "/biterik/Relevantr/blob/main/README.md",
+        "uniques": 1
+      }
+    ],
+    "referrers": [],
+    "views": {
+      "2026-11-12": {
+        "count": 0,
+        "uniques": 0
+      },
+      "2026-11-13": {
+        "count": 0,
+        "uniques": 0
+      },
+      "2026-11-14": {
+        "count": 0,
+        "uniques": 0
+      },
+      "2026-11-15": {
+        "count": 0,
+        "uniques": 0
+      },
+      "2026-11-16": {
+        "count": 0,
+        "uniques": 0
+      },
+      "2026-11-17": {
+        "count": 0,
+        "uniques": 0
+      },
+      "2026-11-18": {
+        "count": 0,
+        "uniques": 0
+      },
+      "2026-11-19": {
+        "count": 1,
+        "uniques": 1
+      },
+      "2026-11-20": {
+        "count": 2,
+        "uniques": 2
+      },
+      "2026-11-21": {
+        "count": 0,
+        "uniques": 0
+      },
+      "2026-11-22": {
+        "count": 0,
+        "uniques": 0
+      },
+      "2026-11-23": {
+        "count": 0,
+        "uniques": 0
+      },
+      "2026-11-24": {
+        "count": 0,
+        "uniques": 0
+      },
+      "2026-11-25": {
+        "count": 0,
+        "uniques": 0
+      }
+    }
+  }
+}
